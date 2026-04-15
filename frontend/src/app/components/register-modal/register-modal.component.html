@@ -1,0 +1,133 @@
+<div
+  class="modal-backdrop"
+  role="presentation"
+  (click)="onBackdropClick($event)"
+>
+  <div
+    class="modal-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="register-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-panel__head">
+      <h2 id="register-title" class="modal-panel__title">{{ modalTitle() }}</h2>
+      <button type="button" class="modal-panel__close" (click)="close()" aria-label="Fermer">
+        ×
+      </button>
+    </div>
+
+    @if (serverError()) {
+      <div class="modal-form modal-form--flush-top" role="alert">
+        <div class="modal-form__alert">{{ serverError() }}</div>
+      </div>
+    }
+
+    @if (accessStep() === 'choose') {
+      <div class="modal-choose">
+        <p class="field__hint">Choisissez comment accéder au panier.</p>
+        <button type="button" class="btn btn--primary btn--block" (click)="pickExisting()">
+          J’ai déjà un compte
+        </button>
+        <button type="button" class="btn btn--ghost btn--block" (click)="pickNew()">
+          Je n’ai pas de compte
+        </button>
+        <div class="modal-form__actions modal-form__actions--choose">
+          <button type="button" class="btn btn--ghost" (click)="close()">Annuler</button>
+        </div>
+      </div>
+    }
+
+    @if (accessStep() === 'existing') {
+      <form class="modal-form" [formGroup]="existingForm" (ngSubmit)="submitExisting()" novalidate>
+        <p class="field__hint">
+          Saisissez le numéro de téléphone enregistré lors de votre inscription.
+        </p>
+        <div class="field">
+          <label class="field__label" for="reg-existing-phone">Numéro de téléphone</label>
+          <input
+            id="reg-existing-phone"
+            type="tel"
+            class="field__input"
+            formControlName="phone"
+            autocomplete="tel"
+            maxlength="32"
+          />
+          @if (existingForm.controls.phone.invalid && existingForm.controls.phone.touched) {
+            <span class="field__error">Le numéro est requis.</span>
+          }
+        </div>
+        <button type="button" class="modal-form__link" (click)="backToChoose()">
+          ← Autre option
+        </button>
+        <div class="modal-form__actions">
+          <button type="button" class="btn btn--ghost" (click)="close()">Annuler</button>
+          <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+            {{ submitting() ? 'Vérification…' : 'Continuer' }}
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (accessStep() === 'new') {
+      <form class="modal-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label class="field__label" for="reg-name">Nom complet</label>
+          <input
+            id="reg-name"
+            type="text"
+            class="field__input"
+            formControlName="name"
+            autocomplete="name"
+            maxlength="150"
+          />
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            <span class="field__error">Le nom est requis.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="reg-phone">Numéro de téléphone</label>
+          <input
+            id="reg-phone"
+            type="tel"
+            class="field__input"
+            formControlName="phone"
+            autocomplete="tel"
+            maxlength="32"
+          />
+          @if (form.controls.phone.invalid && form.controls.phone.touched) {
+            <span class="field__error">Le numéro est requis.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="reg-localization">Localisation</label>
+          <p class="field__hint">Indiquez votre ville, région ou pays.</p>
+          <textarea
+            id="reg-localization"
+            class="field__textarea"
+            formControlName="localization"
+            rows="2"
+            maxlength="2000"
+            placeholder="Ex. Tunis, Tunisie"
+          ></textarea>
+          @if (form.controls.localization.invalid && form.controls.localization.touched) {
+            <span class="field__error">La localisation est requise.</span>
+          }
+        </div>
+
+        <button type="button" class="modal-form__link" (click)="pickExisting()">
+          Déjà un compte ? Se connecter avec mon téléphone
+        </button>
+
+        <div class="modal-form__actions">
+          <button type="button" class="btn btn--ghost" (click)="close()">Annuler</button>
+          <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+            {{ submitting() ? 'Envoi…' : 'Valider et continuer' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

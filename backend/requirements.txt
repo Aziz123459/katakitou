@@ -1,0 +1,8 @@
+Pillow>=10.0,<12
+Django>=5.0,<5.2
+djangorestframework>=3.15,<3.18
+djangorestframework-simplejwt>=5.3,<5.5
+django-cors-headers>=4.6,<5
+python-dotenv>=1.0,<2
+# Pilote PostgreSQL pour Django (django.db.backends.postgresql). Sous Linux, vous pouvez préférer psycopg[binary] pour les wheels C.
+psycopg>=3.1.8

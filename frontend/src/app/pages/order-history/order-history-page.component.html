@@ -1,0 +1,102 @@
+<div class="history-page">
+  <header class="history-page__topbar" aria-label="En-tête">
+    <div class="history-page__topbar-inner">
+      <a routerLink="/boutique" class="history-page__brand">
+        <img class="history-page__logo" [src]="logoSrc" width="40" height="40" alt="" decoding="async" />
+        <span>{{ siteBrand }}</span>
+      </a>
+      <nav class="history-page__nav" aria-label="Navigation">
+        <a
+          routerLink="/mes-achats"
+          routerLinkActive="history-page__icon-link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="history-page__icon-link"
+          aria-label="Mes achats"
+          title="Mes achats"
+        >
+          <svg class="history-page__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
+            />
+          </svg>
+        </a>
+        <a routerLink="/boutique" class="history-page__text-link">Boutique</a>
+        @if (hasAdminDashboard()) {
+          <a routerLink="/admin" class="history-page__text-link">
+            Administration
+          </a>
+        }
+      </nav>
+    </div>
+  </header>
+
+  <main class="history-page__main">
+    @if (thanksVisible()) {
+      <div class="history-page__thanks" role="status" aria-live="polite">
+        <div class="history-page__thanks-inner">
+          <span class="history-page__thanks-tick" aria-hidden="true">✓</span>
+          <p class="history-page__thanks-msg">Commande confirmée — merci pour votre achat.</p>
+          <button type="button" class="history-page__thanks-close" (click)="dismissThanks()" aria-label="Fermer">
+            ×
+          </button>
+        </div>
+      </div>
+    }
+
+    <div class="history-page__container">
+      <h1 class="history-page__title">Mes achats</h1>
+      <p class="history-page__lede">Historique des commandes enregistrées en base de données pour votre compte.</p>
+
+      @if (orders().length === 0) {
+        <p class="history-page__empty">
+          Aucun achat pour le moment. Passez commande depuis la boutique puis validez votre panier.
+        </p>
+        <p class="history-page__cta-wrap">
+          <a routerLink="/boutique" class="history-page__cta">Retour à la boutique</a>
+        </p>
+      } @else {
+        <ul class="history-page__list">
+          @for (order of orders(); track order.id) {
+            <li class="history-card">
+              <div class="history-card__head">
+                <span class="history-card__date">{{ formatOrderDate(order.confirmedAt) }}</span>
+                <span class="history-card__total">{{ formatMoney(order.total) }}</span>
+              </div>
+              <ul class="history-card__lines">
+                @for (line of order.lines; track line.id) {
+                  <li class="history-card__line">
+                    <span class="history-card__thumb-wrap">
+                      <img
+                        class="history-card__thumb"
+                        [src]="productImage(line)"
+                        alt=""
+                        width="56"
+                        height="56"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                    <span class="history-card__label">{{ line.label }}</span>
+                    <span class="history-card__qty">× {{ line.qty }}</span>
+                    <span class="history-card__sub">{{ formatMoney(line.unitPrice * line.qty) }}</span>
+                  </li>
+                }
+              </ul>
+              <dl class="history-card__totals">
+                <div class="history-card__row">
+                  <dt>Sous-total</dt>
+                  <dd>{{ formatMoney(order.subtotal) }}</dd>
+                </div>
+                <div class="history-card__row">
+                  <dt>Livraison</dt>
+                  <dd>+ {{ formatMoney(order.shipping) }}</dd>
+                </div>
+              </dl>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </main>
+</div>

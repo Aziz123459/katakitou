@@ -1,0 +1,132 @@
+.gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem var(--section-x, 1rem);
+  background: linear-gradient(165deg, #fff5fb 0%, #ffffff 40%, #f5f3ff 100%);
+}
+
+.gate__panel {
+  width: min(100%, 26rem);
+  padding: clamp(1.5rem, 4vw, 2rem);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(225, 29, 140, 0.15);
+  box-shadow: 0 20px 50px rgba(99, 102, 241, 0.12);
+}
+
+.gate__brand {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.65rem, 4vw, 2rem);
+  font-weight: 800;
+  color: var(--color-primary);
+  text-align: center;
+  letter-spacing: -0.03em;
+}
+
+.gate__tagline {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-secondary);
+  line-height: 1.45;
+}
+
+.gate__actions {
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px dashed #e9d5ff;
+}
+
+.gate__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-btn);
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+.gate__btn--primary {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #c026d3 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(225, 29, 140, 0.35);
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.05);
+  }
+}
+
+.gate__btn--admin {
+  margin-top: 0.75rem;
+  background: #ffffff;
+  color: var(--color-primary);
+  border-color: rgba(99, 102, 241, 0.45);
+
+  &:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.08);
+  }
+}
+
+.gate__hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-secondary);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.gate__admin-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.gate__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.gate__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+}
+
+.gate__input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  margin-bottom: 0.35rem;
+  border-radius: 8px;
+  border: 1px solid #e9d5ff;
+  font: inherit;
+  font-size: 0.9rem;
+
+  &:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+}
+
+.gate__error {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}

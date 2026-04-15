@@ -1,0 +1,700 @@
+<div class="admin-shell">
+  <button
+    type="button"
+    class="admin-backdrop"
+    [class.admin-backdrop--open]="navOpen()"
+    (click)="closeNav()"
+    [attr.aria-hidden]="!navOpen()"
+    tabindex="-1"
+    aria-label="Fermer le menu"
+  ></button>
+
+  <aside
+    id="admin-nav"
+    class="admin-sidebar"
+    [class.admin-sidebar--open]="navOpen()"
+    aria-label="Navigation administration"
+  >
+    <div class="admin-sidebar__brand">
+      <span class="admin-sidebar__logo">K</span>
+      <div>
+        <p class="admin-sidebar__name">Kokozito</p>
+        <p class="admin-sidebar__sub">Administration</p>
+      </div>
+    </div>
+
+    <nav class="admin-sidebar__nav" aria-label="Sections">
+      <button
+        type="button"
+        class="admin-sidebar__link"
+        [class.admin-sidebar__link--active]="activeSection() === 'overview'"
+        [attr.aria-current]="activeSection() === 'overview' ? 'page' : null"
+        (click)="showSection('overview')"
+      >
+        <span class="admin-sidebar__icon" aria-hidden="true">◆</span>
+        Vue d’ensemble
+      </button>
+      <button
+        type="button"
+        class="admin-sidebar__link"
+        [class.admin-sidebar__link--active]="activeSection() === 'kpis'"
+        [attr.aria-current]="activeSection() === 'kpis' ? 'page' : null"
+        (click)="showSection('kpis')"
+      >
+        <span class="admin-sidebar__icon" aria-hidden="true">▣</span>
+        Indicateurs
+      </button>
+      <button
+        type="button"
+        class="admin-sidebar__link"
+        [class.admin-sidebar__link--active]="activeSection() === 'stock'"
+        [attr.aria-current]="activeSection() === 'stock' ? 'page' : null"
+        (click)="showSection('stock')"
+      >
+        <span class="admin-sidebar__icon" aria-hidden="true">▤</span>
+        Stock
+      </button>
+      <button
+        type="button"
+        class="admin-sidebar__link"
+        [class.admin-sidebar__link--active]="activeSection() === 'products'"
+        [attr.aria-current]="activeSection() === 'products' ? 'page' : null"
+        (click)="showSection('products')"
+      >
+        <span class="admin-sidebar__icon" aria-hidden="true">◇</span>
+        Produits
+      </button>
+      <button
+        type="button"
+        class="admin-sidebar__link"
+        [class.admin-sidebar__link--active]="activeSection() === 'orders'"
+        [attr.aria-current]="activeSection() === 'orders' ? 'page' : null"
+        (click)="showSection('orders')"
+      >
+        <span class="admin-sidebar__icon" aria-hidden="true">☰</span>
+        Commandes
+      </button>
+      <button
+        type="button"
+        class="admin-sidebar__link"
+        [class.admin-sidebar__link--active]="activeSection() === 'accounts'"
+        [attr.aria-current]="activeSection() === 'accounts' ? 'page' : null"
+        (click)="showSection('accounts')"
+      >
+        <span class="admin-sidebar__icon" aria-hidden="true">◎</span>
+        Comptes
+      </button>
+    </nav>
+
+    <div class="admin-sidebar__footer">
+      <a routerLink="/boutique" class="admin-sidebar__foot-link">Voir la boutique</a>
+      <button type="button" class="admin-sidebar__logout" (click)="logout()">Déconnexion</button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar__row">
+        <button
+          type="button"
+          class="admin-topbar__menu-btn"
+          (click)="toggleNav()"
+          [attr.aria-expanded]="navOpen()"
+          aria-controls="admin-nav"
+          aria-label="Ouvrir ou fermer le menu"
+        >
+          <span class="admin-topbar__menu-bars" aria-hidden="true"></span>
+        </button>
+        <div class="admin-topbar__headings">
+          <p class="admin-topbar__eyebrow">Tableau de bord</p>
+          <h1 class="admin-topbar__title">{{ sectionHeading() }}</h1>
+        </div>
+      </div>
+      <div class="admin-topbar__actions admin-topbar__actions--desktop-only">
+        <a routerLink="/boutique" class="admin-topbar__link">Boutique</a>
+        <button type="button" class="admin-topbar__logout" (click)="logout()">Déconnexion</button>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <p class="admin__status">Chargement…</p>
+    } @else if (loadError()) {
+      <p class="admin__error" role="alert">{{ loadError() }}</p>
+      <p><a routerLink="/" class="admin__link">Retour à l’accueil</a></p>
+    } @else if (stats()) {
+      <div class="admin-panel" role="tabpanel" [attr.aria-label]="sectionHeading()">
+        @if (activeSection() === 'overview') {
+      <section class="admin-section overview" aria-labelledby="overview-title">
+        <h2 id="overview-title" class="admin-section__title">Tableau de bord</h2>
+        <p class="admin-section__lead">
+          Synthèse du mois en cours avec tendance vs mois précédent. L’évolution des visites est affichée par mois par défaut ;
+          vous pouvez passer au jour ou à l’année.
+        </p>
+
+        <div class="overview-kpi-row" aria-label="Indicateurs clés du mois">
+          <article class="overview-kpi overview-kpi--blue">
+            <h3 class="overview-kpi__title">Visites ce mois</h3>
+            <p class="overview-kpi__value">{{ stats()!.visitors_month }}</p>
+            <p class="overview-kpi__trend" [class]="trendClass(stats()!.visitors_month_delta_pct)">
+              {{ formatDeltaPct(stats()!.visitors_month_delta_pct) }}
+            </p>
+          </article>
+          <article class="overview-kpi overview-kpi--rose">
+            <h3 class="overview-kpi__title">Commandes ce mois</h3>
+            <p class="overview-kpi__value">{{ stats()!.orders_month }}</p>
+            <p class="overview-kpi__trend" [class]="trendClass(stats()!.orders_month_delta_pct)">
+              {{ formatDeltaPct(stats()!.orders_month_delta_pct) }}
+            </p>
+          </article>
+          <article class="overview-kpi overview-kpi--violet">
+            <h3 class="overview-kpi__title">Chiffre d’affaires (mois)</h3>
+            <p class="overview-kpi__value">{{ formatMoney(stats()!.revenue_month) }}</p>
+            <p class="overview-kpi__trend" [class]="trendClass(stats()!.revenue_month_delta_pct)">
+              {{ formatDeltaPct(stats()!.revenue_month_delta_pct) }}
+            </p>
+          </article>
+          <article class="overview-kpi overview-kpi--green">
+            <h3 class="overview-kpi__title">Taux de conversion</h3>
+            <p class="overview-kpi__value">{{ stats()!.conversion_month_pct ?? 0 }} %</p>
+            <p class="overview-kpi__trend" [class]="trendClass(stats()!.conversion_month_delta_pp)">
+              {{ formatDeltaPp(stats()!.conversion_month_delta_pp) }}
+            </p>
+          </article>
+        </div>
+
+        <div class="overview-grid">
+          <article class="overview-card overview-card--wide" aria-labelledby="chart-visits-title">
+            <div class="overview-card__head">
+              <div>
+                <h3 id="chart-visits-title" class="overview-card__title">Évolution des visites</h3>
+                <p class="overview-card__subtitle">Courbe selon la période sélectionnée</p>
+              </div>
+              <div
+                class="overview-segment"
+                role="group"
+                [attr.aria-label]="'Granularité : ' + seriesGranularity()"
+              >
+                <button
+                  type="button"
+                  class="overview-segment__btn"
+                  [class.overview-segment__btn--active]="seriesGranularity() === 'day'"
+                  [attr.aria-pressed]="seriesGranularity() === 'day'"
+                  (click)="setSeriesGranularity('day')"
+                >
+                  Jour
+                </button>
+                <button
+                  type="button"
+                  class="overview-segment__btn"
+                  [class.overview-segment__btn--active]="seriesGranularity() === 'month'"
+                  [attr.aria-pressed]="seriesGranularity() === 'month'"
+                  (click)="setSeriesGranularity('month')"
+                >
+                  Mois
+                </button>
+                <button
+                  type="button"
+                  class="overview-segment__btn"
+                  [class.overview-segment__btn--active]="seriesGranularity() === 'year'"
+                  [attr.aria-pressed]="seriesGranularity() === 'year'"
+                  (click)="setSeriesGranularity('year')"
+                >
+                  Année
+                </button>
+              </div>
+            </div>
+
+            @if (seriesLoading()) {
+              <p class="overview-card__loading">Chargement du graphique…</p>
+            } @else if (seriesVisits().length === 0) {
+              <p class="overview-card__empty">Aucune donnée pour cette période.</p>
+            } @else {
+              <div class="overview-line-wrap">
+                <svg class="overview-line-svg" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="overview-area-grad" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="rgb(59, 130, 246)" stop-opacity="0.35" />
+                      <stop offset="100%" stop-color="rgb(59, 130, 246)" stop-opacity="0.02" />
+                    </linearGradient>
+                  </defs>
+                  <polygon class="overview-area" [attr.points]="areaChartPoints()" fill="url(#overview-area-grad)" />
+                  <polyline
+                    class="overview-line"
+                    fill="none"
+                    stroke="rgb(37, 99, 235)"
+                    stroke-width="0.9"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    [attr.points]="lineChartPoints()"
+                  />
+                </svg>
+                <div class="overview-line-labels" aria-hidden="true">
+                  @for (p of seriesVisits(); track $index) {
+                    <span class="overview-line-labels__item">{{ p.label }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </article>
+
+          <article class="overview-card overview-card--pie" aria-labelledby="chart-mix-title">
+            <div class="overview-card__head overview-card__head--stack">
+              <h3 id="chart-mix-title" class="overview-card__title">Commandes par produit</h3>
+              <p class="overview-card__subtitle">Part des quantités vendues (toutes commandes)</p>
+            </div>
+            @if (productMix().length === 0) {
+              <p class="overview-card__empty">Pas encore de ventes par ligne produit.</p>
+            } @else {
+              <div class="overview-pie-row">
+                <div class="overview-pie" [style.background]="pieGradient()" role="img" aria-label="Répartition"></div>
+                <div class="overview-legend" role="list">
+                  @for (row of productMix(); track row.product_key) {
+                    <div class="overview-legend__item" role="listitem">
+                      <span
+                        class="overview-legend__dot"
+                        [style.background]="pieColorAt($index)"
+                        aria-hidden="true"
+                      ></span>
+                      <span class="overview-legend__label">{{ row.label }}</span>
+                      <span class="overview-legend__pct">{{ row.pct }} %</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </article>
+        </div>
+      </section>
+        }
+
+        @if (activeSection() === 'kpis') {
+      <section class="admin-section" aria-labelledby="kpis-title">
+        <h2 id="kpis-title" class="admin-section__title">Tous les indicateurs</h2>
+        <p class="admin-section__lead">
+          Visites, commandes et chiffre d’affaires pour la période choisie. Par défaut : <strong>mois en cours</strong> ; basculez
+          vers le jour ou l’année.
+        </p>
+        <div
+          class="kpi-toolbar"
+          role="group"
+          [attr.aria-label]="'Période : ' + kpiPeriodLabel()"
+        >
+          <span class="kpi-toolbar__hint" id="kpi-period-hint">Période</span>
+          <div class="overview-segment overview-segment--kpi" aria-labelledby="kpi-period-hint">
+            <button
+              type="button"
+              class="overview-segment__btn"
+              [class.overview-segment__btn--active]="kpiGranularity() === 'day'"
+              [attr.aria-pressed]="kpiGranularity() === 'day'"
+              (click)="setKpiGranularity('day')"
+            >
+              Jour
+            </button>
+            <button
+              type="button"
+              class="overview-segment__btn"
+              [class.overview-segment__btn--active]="kpiGranularity() === 'month'"
+              [attr.aria-pressed]="kpiGranularity() === 'month'"
+              (click)="setKpiGranularity('month')"
+            >
+              Mois
+            </button>
+            <button
+              type="button"
+              class="overview-segment__btn"
+              [class.overview-segment__btn--active]="kpiGranularity() === 'year'"
+              [attr.aria-pressed]="kpiGranularity() === 'year'"
+              (click)="setKpiGranularity('year')"
+            >
+              Année
+            </button>
+          </div>
+        </div>
+        <div class="admin__stats admin__stats--kpi-trio" aria-label="Indicateurs pour la période sélectionnée">
+          <article class="stat-card">
+            <h2 class="stat-card__label">
+              Visites
+              <span class="stat-card__period">({{ kpiPeriodLabel() }})</span>
+            </h2>
+            <p class="stat-card__value">{{ kpiVisitorsValue() }}</p>
+          </article>
+          <article class="stat-card stat-card--accent">
+            <h2 class="stat-card__label">
+              Commandes
+              <span class="stat-card__period">({{ kpiPeriodLabel() }})</span>
+            </h2>
+            <p class="stat-card__value">{{ kpiOrdersValue() }}</p>
+          </article>
+          <article class="stat-card stat-card--money">
+            <h2 class="stat-card__label">
+              Chiffre d’affaires
+              <span class="stat-card__period">({{ kpiPeriodLabel() }})</span>
+            </h2>
+            <p class="stat-card__value">{{ formatMoney(kpiRevenueRaw()) }}</p>
+          </article>
+        </div>
+      </section>
+        }
+
+        @if (activeSection() === 'stock') {
+      <section class="admin-section" aria-labelledby="stock-title">
+        <h2 id="stock-title" class="admin-section__title">Stock par produit</h2>
+        <p class="admin-section__lead">
+          Indiquez combien d’unités vous avez en rayon pour chaque article. Les quantités sont enregistrées sur le serveur.
+        </p>
+        @if (inventorySaveError()) {
+          <p class="admin__error admin__error--inline" role="alert">{{ inventorySaveError() }}</p>
+        }
+        <div class="admin__table-wrap admin__table-wrap--responsive admin__table-wrap--stock">
+          <table class="admin__table admin__table--stack">
+            <thead>
+              <tr>
+                <th scope="col">Produit</th>
+                <th scope="col">Quantité disponible</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of inventory(); track item.product_key) {
+                <tr>
+                  <td data-label="Produit">{{ item.label }}</td>
+                  <td class="admin__stock-cell" data-label="Quantité">
+                    <input
+                      class="admin__qty-input"
+                      type="number"
+                      min="0"
+                      step="1"
+                      placeholder="0"
+                      [value]="inventoryQtyFor(item.product_key)"
+                      (input)="onInventoryQtyInput(item.product_key, $any($event.target).value)"
+                      [attr.aria-label]="'Quantité pour ' + item.label"
+                    />
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (inventory().length === 0) {
+          <p class="admin__empty">Aucun produit en inventaire (rechargez le tableau de bord).</p>
+        } @else {
+          <div class="admin__stock-actions">
+            <button
+              type="button"
+              class="admin__btn-primary"
+              (click)="saveInventory()"
+              [disabled]="inventorySaving()"
+            >
+              {{ inventorySaving() ? 'Enregistrement…' : 'Enregistrer le stock' }}
+            </button>
+          </div>
+        }
+      </section>
+        }
+
+        @if (activeSection() === 'products') {
+      <section class="admin-section" aria-labelledby="products-title">
+        <h2 id="products-title" class="admin-section__title">Produits affichés en boutique</h2>
+        <p class="admin-section__lead">
+          Une <strong>image principale</strong> (obligatoire, un seul fichier) : couverture et première photo de la galerie.
+          Ensuite ajoutez autant d’<strong>images supplémentaires</strong> que vous voulez : une ou plusieurs sélections de
+          fichiers (cumul). Puces optionnelles. Pensez au stock.
+        </p>
+        @if (productFormError()) {
+          <p class="admin__error admin__error--inline" role="alert">{{ productFormError() }}</p>
+        }
+        <form class="admin-product-form" novalidate>
+          <div class="admin-product-form__grid">
+            <label class="admin-product-form__field">
+              <span class="admin-product-form__label">Nom</span>
+              <input
+                type="text"
+                class="admin-product-form__input"
+                maxlength="200"
+                [value]="newProductName()"
+                (input)="newProductName.set($any($event.target).value)"
+                autocomplete="off"
+                aria-required="true"
+              />
+            </label>
+            <label class="admin-product-form__field">
+              <span class="admin-product-form__label">Prix (TND)</span>
+              <input
+                type="text"
+                class="admin-product-form__input"
+                inputmode="decimal"
+                [value]="newProductPrice()"
+                (input)="newProductPrice.set($any($event.target).value)"
+                placeholder="ex. 24,500"
+                aria-required="true"
+              />
+            </label>
+          </div>
+          <label class="admin-product-form__field admin-product-form__field--block">
+            <span class="admin-product-form__label">Description</span>
+            <textarea
+              class="admin-product-form__textarea"
+              rows="4"
+              [value]="newProductDescription()"
+              (input)="newProductDescription.set($any($event.target).value)"
+              aria-required="true"
+            ></textarea>
+          </label>
+          <label class="admin-product-form__field admin-product-form__field--block">
+            <span class="admin-product-form__label">Puces (optionnel, une ligne = une puce)</span>
+            <textarea
+              class="admin-product-form__textarea"
+              rows="4"
+              [value]="newProductHighlights()"
+              (input)="newProductHighlights.set($any($event.target).value)"
+              placeholder="Ex.&#10;Tissu doux&#10;Lavable en machine"
+            ></textarea>
+          </label>
+          <div class="admin-product-form__field admin-product-form__field--block">
+            <span class="admin-product-form__label">Image principale (1 fichier obligatoire)</span>
+            <input
+              id="admin-new-product-image"
+              type="file"
+              class="admin-product-form__file"
+              accept="image/*"
+              (change)="onNewProductImageChange($event)"
+              aria-required="true"
+            />
+            @if (newProductPrimaryPreviewUrl(); as primaryUrl) {
+              <div class="admin-product-preview admin-product-preview--primary">
+                <img
+                  class="admin-product-preview__img"
+                  [src]="primaryUrl"
+                  alt="Aperçu — image principale"
+                  width="140"
+                  height="140"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <button
+                  type="button"
+                  class="admin-product-preview__remove"
+                  (click)="removePrimaryImage()"
+                  aria-label="Retirer l’image principale"
+                >
+                  Retirer
+                </button>
+              </div>
+            }
+          </div>
+          <div class="admin-product-form__field admin-product-form__field--block">
+            <span class="admin-product-form__label"
+              >Images supplémentaires (autant que vous voulez, optionnel)</span
+            >
+            <p class="admin-product-form__hint">
+              Choisissez plusieurs fichiers d’un coup (Ctrl ou Maj + clic), ou ajoutez-en plusieurs fois : chaque
+              nouvelle sélection s’ajoute à la liste. Vous pouvez retirer une image une par une ci-dessous.
+              @if (newProductGalleryPicks().length > 0) {
+                <span class="admin-product-form__count">
+                  — {{ newProductGalleryPicks().length }} image(s) en attente</span
+                >
+              }
+            </p>
+            <input
+              id="admin-new-product-gallery"
+              type="file"
+              class="admin-product-form__file"
+              accept="image/*"
+              multiple
+              (change)="onNewProductGalleryChange($event)"
+            />
+            @if (newProductGalleryPicks().length > 0) {
+              <ul class="admin-product-gallery-chips" role="list">
+                @for (pick of newProductGalleryPicks(); track pick.id) {
+                  <li class="admin-product-gallery-chips__item" role="listitem">
+                    <img
+                      class="admin-product-gallery-chips__img"
+                      [src]="pick.objectUrl"
+                      [attr.alt]="'Aperçu — ' + pick.file.name"
+                      width="88"
+                      height="88"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <button
+                      type="button"
+                      class="admin-product-gallery-chips__remove"
+                      (click)="removeGalleryPick(pick.id)"
+                      [attr.aria-label]="'Retirer ' + pick.file.name"
+                    >
+                      Retirer
+                    </button>
+                  </li>
+                }
+              </ul>
+              <button type="button" class="admin-product-form__clear-gallery" (click)="clearGallerySelection()">
+                Tout retirer (galerie)
+              </button>
+            }
+          </div>
+          <div class="admin-product-form__actions">
+            <button type="button" class="admin__btn-primary" [disabled]="productSaving()" (click)="submitNewShopProduct()">
+              {{ productSaving() ? 'Publication…' : 'Ajouter le produit' }}
+            </button>
+          </div>
+        </form>
+        <h3 class="admin-product-list__title">Produits publiés</h3>
+        @if (shopProducts().length === 0) {
+          <p class="admin__empty">Aucun produit catalogue pour le moment.</p>
+        } @else {
+          <ul class="admin-product-list" role="list">
+            @for (p of shopProducts(); track p.id) {
+              <li class="admin-product-list__item" role="listitem">
+                <img
+                  class="admin-product-list__thumb"
+                  [src]="p.image_url"
+                  [alt]="'Miniature — ' + p.name"
+                  width="72"
+                  height="72"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="admin-product-list__meta">
+                  <span class="admin-product-list__name">{{ p.name }}</span>
+                  <span class="admin-product-list__price">{{ formatMoney(p.price) }}</span>
+                  <span class="admin-product-list__id">Réf. {{ p.id }}</span>
+                </div>
+                <div class="admin-product-list__actions">
+                  <button
+                    type="button"
+                    class="admin__btn-danger"
+                    [disabled]="productDeletingId() === p.id"
+                    [attr.aria-busy]="productDeletingId() === p.id ? 'true' : null"
+                    (click)="deleteShopProduct(p)"
+                  >
+                    {{
+                      productDeletingId() === p.id ? 'Suppression…' : 'Supprimer'
+                    }}
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+        }
+
+        @if (activeSection() === 'accounts') {
+      <section class="admin-section" aria-labelledby="accounts-title">
+        <h2 id="accounts-title" class="admin-section__title">Comptes créés</h2>
+        <p class="admin-section__lead">
+          Inscriptions via la boutique (nom, coordonnées, rôle). Vous pouvez changer le rôle d’un compte ou le supprimer
+          (sauf votre propre compte, les superutilisateurs système, et les comptes protégés).
+        </p>
+        @if (accountsError()) {
+          <p class="admin__error admin__error--inline" role="alert">{{ accountsError() }}</p>
+        }
+        <div class="admin__table-wrap admin__table-wrap--responsive">
+          <table class="admin__table admin__table--stack">
+            <thead>
+              <tr>
+                <th scope="col">Inscription</th>
+                <th scope="col">Nom</th>
+                <th scope="col">E-mail</th>
+                <th scope="col">Téléphone</th>
+                <th scope="col">Localisation</th>
+                <th scope="col">Rôle</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of accounts(); track a.id) {
+                <tr>
+                  <td data-label="Inscription">{{ formatDate(a.created_at) }}</td>
+                  <td data-label="Nom">{{ a.name }}</td>
+                  <td data-label="E-mail">{{ a.email || '—' }}</td>
+                  <td data-label="Téléphone">{{ a.phone }}</td>
+                  <td class="admin__loc" data-label="Localisation">{{ a.location }}</td>
+                  <td class="admin__role-cell" data-label="Rôle">
+                    @if (a.is_superuser) {
+                      <span class="admin__role admin__role--admin" title="Rôle géré par Django">Superutilisateur</span>
+                    } @else if (isCurrentAdminUser(a)) {
+                      <span
+                        class="admin__role"
+                        [class.admin__role--admin]="a.role === 'admin'"
+                        [class.admin__role--client]="a.role === 'client'"
+                        >{{ formatRole(a.role) }} (vous)</span
+                      >
+                    } @else {
+                      <select
+                        class="admin__role-select"
+                        [value]="a.role"
+                        (change)="onAccountRoleChange(a, $any($event.target).value)"
+                        [disabled]="accountActionPendingId() === a.id"
+                        [attr.title]="'Rôle pour ' + a.name"
+                        [attr.aria-label]="'Rôle pour ' + a.name"
+                      >
+                        <option value="client">Client</option>
+                        <option value="admin">Administrateur</option>
+                      </select>
+                    }
+                  </td>
+                  <td class="admin__actions-cell" data-label="Actions">
+                    <button
+                      type="button"
+                      class="admin__btn-danger"
+                      (click)="deleteAccount(a)"
+                      [disabled]="!canDeleteAccount(a) || accountActionPendingId() === a.id"
+                      [attr.aria-label]="'Supprimer le compte ' + a.name"
+                    >
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (accounts().length === 0) {
+          <p class="admin__empty">Aucun compte enregistré pour le moment.</p>
+        }
+      </section>
+        }
+
+        @if (activeSection() === 'orders') {
+      <section class="admin-section" aria-labelledby="orders-title">
+        <h2 id="orders-title" class="admin-section__title">Liste des commandes</h2>
+        <p class="admin-section__lead">Nom, téléphone, localisation et détail des lignes.</p>
+        <div class="admin__table-wrap admin__table-wrap--responsive">
+          <table class="admin__table admin__table--stack">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">Nom</th>
+                <th scope="col">Téléphone</th>
+                <th scope="col">Localisation</th>
+                <th scope="col">Détail</th>
+                <th scope="col">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of orders(); track o.id) {
+                <tr>
+                  <td data-label="Date">{{ formatDate(o.created_at) }}</td>
+                  <td data-label="Nom">{{ o.customer_name }}</td>
+                  <td data-label="Téléphone">{{ o.phone }}</td>
+                  <td class="admin__loc" data-label="Localisation">{{ o.location }}</td>
+                  <td class="admin__lines" data-label="Détail">
+                    @for (line of o.lines; track line.id) {
+                      <span class="admin__line-item">{{ line.label }} × {{ line.qty }}</span>
+                    }
+                  </td>
+                  <td data-label="Total">{{ formatMoney(o.total) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (orders().length === 0) {
+          <p class="admin__empty">Aucune commande enregistrée pour le moment.</p>
+        }
+      </section>
+        }
+      </div>
+    }
+  </div>
+</div>

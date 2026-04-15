@@ -1,0 +1,46 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+:root {
+  /* Espacement page — sections aérées, lisibles sur mobile et desktop */
+  --section-y: clamp(1rem, 2.6vw, 1.75rem);
+  --section-y-lg: clamp(1.65rem, 4.5vw, 3rem);
+  --section-x: clamp(1rem, 2.8vw, 1.65rem);
+  /* Largeur utile max (topbar + .container) — moins de « vide » latéral sur grands écrans */
+  --container-max: min(calc(96vw - 2 * var(--section-x)), 92rem);
+  --img-hero-max: min(68vw, 220px);
+  --img-hero-max-md: min(34vw, 260px);
+  --img-duo-max: min(62vw, 200px);
+  --img-duo-max-md: min(30vw, 240px);
+
+  /* Indigo + rose (sac mesh fuchsia des photos adpic) */
+  --color-bg: #ffffff;
+  --color-text: #1f2937;
+  --color-muted: #8b5cf6;
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-secondary: #6b7280;
+  --color-accent: #e11d8c;
+  --color-accent-strong: #be185d;
+  --color-accent-soft: #f472b6;
+  --color-border: #fce7f3;
+  --color-faq-answer: #7c3aed;
+  --radius-btn: 8px;
+  --radius-card: 12px;
+  --radius-pill: 999px;
+  --radius-showcase-img: 24px;
+}

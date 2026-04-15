@@ -1,0 +1,920 @@
+<div class="page">
+  <header class="topbar" aria-label="En-tête du site">
+    <div class="container topbar__inner">
+      <a
+        href="#"
+        class="topbar__brand"
+        aria-label="Kokozito — retour en haut de page"
+        (click)="$event.preventDefault(); scrollToIdFromMenu('hero-top')"
+      >
+        <img
+          class="topbar__logo"
+          [src]="logoSrc"
+          width="40"
+          height="40"
+          alt=""
+          decoding="async"
+        />
+        <span class="topbar__brand-text">{{ siteBrand }}</span>
+      </a>
+      <nav class="topbar__nav" aria-label="Navigation principale">
+        <button
+          type="button"
+          class="topbar__link"
+          (click)="scrollToId('produit')"
+        >
+          Sac de douche
+        </button>
+        <button
+          type="button"
+          class="topbar__link"
+          (click)="scrollToId('serviette-canard')"
+        >
+          Serviette
+        </button>
+        @if (boutiqueProducts().length > 0) {
+          <button
+            type="button"
+            class="topbar__link"
+            (click)="scrollToId('boutique-catalogue')"
+          >
+            Catalogue
+          </button>
+        }
+        <button
+          type="button"
+          class="topbar__link"
+          (click)="scrollToId('etapes')"
+        >
+          Étapes
+        </button>
+        <button
+          type="button"
+          class="topbar__link"
+          (click)="scrollToId('faq-title')"
+        >
+          FAQ
+        </button>
+      </nav>
+      <div class="topbar__actions">
+        <div class="topbar__cart-wrap">
+          <button
+            type="button"
+            class="topbar__cart"
+            (click)="onCartButtonClick($event)"
+            [attr.aria-expanded]="cartPanelOpen()"
+            [attr.aria-haspopup]="hasAccount() ? 'dialog' : null"
+            aria-controls="cart-panel"
+            id="cart-toggle"
+          >
+            <svg
+              class="topbar__cart-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                fill="currentColor"
+                d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.44C4.8 15.5 6.26 17 8 17h12v-2H8.42c-.14 0-.25-.11-.25-.25l.03-.12L9.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+              />
+            </svg>
+            @if (cartItemCount() > 0) {
+              <span class="topbar__cart-badge">{{ cartItemCount() }}</span>
+            }
+            <span class="visually-hidden">Panier</span>
+          </button>
+        </div>
+        <div class="topbar__cta-group">
+          <button
+            type="button"
+            class="btn btn--primary btn--compact topbar__cmd-btn"
+            (click)="scrollToOrder()"
+          >
+            Commander
+          </button>
+          @if (hasAdminDashboard()) {
+            <a
+              routerLink="/admin"
+              class="btn btn--outline btn--compact topbar__admin-dash"
+              title="Tableau de bord administrateur"
+            >
+              Administration
+            </a>
+          }
+          <a
+            routerLink="/mes-achats"
+            routerLinkActive="topbar__icon-link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="topbar__icon-link"
+            aria-label="Mes achats"
+            title="Mes achats"
+          >
+            <svg
+              class="topbar__icon-svg"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                fill="currentColor"
+                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"
+              />
+            </svg>
+          </a>
+        </div>
+        <button
+          type="button"
+          class="topbar__menu-btn"
+          [attr.aria-expanded]="topbarMenuOpen()"
+          aria-controls="topbar-mobile-sheet"
+          [attr.aria-label]="topbarMenuOpen() ? 'Fermer le menu' : 'Ouvrir le menu'"
+          (click)="toggleTopbarMenu()"
+        >
+          @if (topbarMenuOpen()) {
+            <svg class="topbar__menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+              />
+            </svg>
+          } @else {
+            <svg class="topbar__menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+            </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </header>
+
+  @if (topbarMenuOpen()) {
+    <div
+      class="topbar__backdrop"
+      role="presentation"
+      tabindex="-1"
+      (click)="closeTopbarMenu()"
+    ></div>
+  }
+  <div
+    id="topbar-mobile-sheet"
+    class="topbar__sheet"
+    [class.topbar__sheet--open]="topbarMenuOpen()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="topbar-mobile-sheet-title"
+    [attr.aria-hidden]="!topbarMenuOpen()"
+  >
+    <div class="topbar__sheet-inner container">
+      <h2 id="topbar-mobile-sheet-title" class="visually-hidden">Menu boutique</h2>
+      <nav class="topbar__sheet-nav" aria-label="Navigation">
+        <button type="button" class="topbar__sheet-link" (click)="scrollToIdFromMenu('produit')">
+          Sac de douche
+        </button>
+        <button type="button" class="topbar__sheet-link" (click)="scrollToIdFromMenu('serviette-canard')">
+          Serviette
+        </button>
+        @if (boutiqueProducts().length > 0) {
+          <button
+            type="button"
+            class="topbar__sheet-link"
+            (click)="scrollToIdFromMenu('boutique-catalogue')"
+          >
+            Catalogue
+          </button>
+        }
+        <button type="button" class="topbar__sheet-link" (click)="scrollToIdFromMenu('etapes')">
+          Étapes
+        </button>
+        <button type="button" class="topbar__sheet-link" (click)="scrollToIdFromMenu('faq-title')">
+          FAQ
+        </button>
+      </nav>
+      <div class="topbar__sheet-actions">
+        <button type="button" class="btn btn--primary btn--block topbar__sheet-btn" (click)="scrollToOrderFromMenu()">
+          Commander
+        </button>
+        @if (hasAdminDashboard()) {
+          <a
+            routerLink="/admin"
+            class="btn btn--outline btn--block topbar__sheet-btn"
+            (click)="closeTopbarMenu()"
+          >
+            Administration
+          </a>
+        }
+        <a
+          routerLink="/mes-achats"
+          class="topbar__sheet-orders"
+          (click)="closeTopbarMenu()"
+        >
+          Mes achats
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <section
+    id="hero-top"
+    class="boutique-hero"
+    aria-labelledby="boutique-hero-title"
+  >
+    <div class="container boutique-hero__inner">
+      <h1 id="boutique-hero-title" class="boutique-hero__title">
+        Transformez le bain en moment zen
+      </h1>
+      <p class="boutique-hero__lead">
+        Le sac pour laver sans stress, la serviette pour sécher avec douceur — le duo idéal pour des toilettages plus calmes.
+        Commencez dès aujourd’hui.
+      </p>
+      <button type="button" class="boutique-hero__cta" (click)="scrollToOrder()">
+        Acheter maintenant
+      </button>
+    </div>
+  </section>
+
+  <section
+    id="produit"
+    class="section section--soft"
+    aria-labelledby="product-teaser-title"
+  >
+    <div class="container bag-product">
+      <div class="bag-product__copy">
+        <h2 id="product-teaser-title" class="section__title">Sac de douche</h2>
+        <p class="muted">
+          Un accessoire de toilettage pensé pour limiter les griffures et le
+          stress : votre chat respire à travers le mesh pendant que vous vous
+          occupez du pelage.
+        </p>
+        <ul class="checklist" aria-label="Avantages du sac">
+          <li>Maille respirante</li>
+          <li>Cordons de serrage</li>
+          <li>Utilisable bain ou lavabo</li>
+        </ul>
+        <button
+          type="button"
+          class="btn btn--primary"
+          (click)="scrollToOrder()"
+        >
+          Acheter maintenant
+        </button>
+      </div>
+      <div
+        class="bag-product__gallery"
+        role="region"
+        aria-label="Galerie photos du sac de douche"
+      >
+        <div class="bag-product__frame">
+          <button
+            type="button"
+            class="split__nav split__nav--prev"
+            (click)="prevBagImage()"
+            aria-label="Photo précédente"
+          >
+            ‹
+          </button>
+          <img
+            [src]="bagGalleryCurrent()"
+            alt="Sac de douche pour chat — photo produit"
+            width="800"
+            height="1000"
+            sizes="(min-width: 768px) 45vw, 100vw"
+            loading="lazy"
+            decoding="async"
+          />
+          <button
+            type="button"
+            class="split__nav split__nav--next"
+            (click)="nextBagImage()"
+            aria-label="Photo suivante"
+          >
+            ›
+          </button>
+        </div>
+        <div
+          class="bag-product__thumbs"
+          role="group"
+          aria-label="Choisir une photo du sac"
+        >
+          @for (src of bagGalleryImages; track src; let i = $index) {
+            <button
+              type="button"
+              class="bag-product__thumb split__thumb"
+              [class.split__thumb--active]="bagGalleryIndex() === i"
+              [attr.aria-pressed]="bagGalleryIndex() === i"
+              [attr.aria-label]="'Afficher la photo ' + (i + 1)"
+              (click)="selectBagImage(i)"
+            >
+              <span class="visually-hidden">Miniature {{ i + 1 }}</span>
+              <img [src]="src" alt="" width="80" height="80" loading="lazy" />
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="etapes"
+    class="section section--plain"
+    aria-labelledby="features-title"
+  >
+    <div class="container">
+      <div class="feature-etapes__head">
+        <h2 id="features-title" class="section__heading feature-etapes__title">
+          Le sac de douche en 4 étapes
+        </h2>
+        <p class="section__sub muted feature-etapes__lead">
+          Du placement au séchage : quatre étapes claires. La serviette canard
+          prend le relais après le bain.
+        </p>
+      </div>
+      <div class="feature-matrix" role="list">
+        <div
+          class="feature-matrix__rule feature-matrix__rule--v"
+          aria-hidden="true"
+        ></div>
+        <div
+          class="feature-matrix__rule feature-matrix__rule--h"
+          aria-hidden="true"
+        ></div>
+        @for (f of features; track f.id) {
+          <div class="feature-matrix__cell" role="listitem">
+            <figure class="feature-matrix__figure">
+              <img
+                [src]="f.imageSrc"
+                [alt]="f.imageAlt"
+                width="1024"
+                height="1024"
+                loading="lazy"
+                decoding="async"
+                class="feature-matrix__img"
+              />
+            </figure>
+            <p class="feature-matrix__tag">{{ f.featureLabel }}</p>
+            <p class="feature-matrix__copy">
+              <span class="feature-matrix__step-num">{{ f.step }}.</span>
+              {{ f.text }}
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="serviette-canard"
+    class="section section--towel"
+    aria-labelledby="towel-title"
+  >
+    <div class="container towel-block">
+      <h2 id="towel-title" class="section__title section__title--towel">
+        {{ towelProductTitle }}
+      </h2>
+      <p class="towel-block__intro muted muted--center">
+        Cape à capuche en éponge jaune soleil, motif canard : idéale pour
+        envelopper votre compagnon après le bain. Tissu éponge doux et très
+        absorbant, bec orange ludique sur la capuche — séchage rapide et moment
+        câlin garanti.
+      </p>
+      <div class="towel-split">
+        <div class="towel-split__copy">
+          <ul
+            class="checklist checklist--towel"
+            aria-label="Atouts de la serviette"
+          >
+            <li>Éponge / tissu bouclette confortable</li>
+            <li>Capuche forme canard avec détails orange</li>
+            <li>Forme cape : enveloppe le corps en un geste</li>
+            <li>Parfaite après le sac de douche</li>
+          </ul>
+          <button
+            type="button"
+            class="btn btn--towel"
+            (click)="scrollToOrder()"
+          >
+            Commander la serviette
+          </button>
+        </div>
+        <div
+          class="towel-product__gallery"
+          role="region"
+          aria-label="Galerie photos serviette canard"
+        >
+          <div class="towel-product__frame">
+            <button
+              type="button"
+              class="split__nav split__nav--prev"
+              (click)="prevTowelImage()"
+              aria-label="Photo précédente"
+            >
+              ‹
+            </button>
+            <img
+              [src]="towelGalleryCurrent()"
+              alt="Serviette à capuche canard — photo produit"
+              width="800"
+              height="1000"
+              loading="lazy"
+              decoding="async"
+            />
+            <button
+              type="button"
+              class="split__nav split__nav--next"
+              (click)="nextTowelImage()"
+              aria-label="Photo suivante"
+            >
+              ›
+            </button>
+          </div>
+          <div
+            class="towel-product__thumbs"
+            role="group"
+            aria-label="Choisir une photo de la serviette"
+          >
+            @for (src of towelGalleryImages; track src; let i = $index) {
+              <button
+                type="button"
+                class="towel-product__thumb split__thumb"
+                [class.towel-product__thumb--active]="towelGalleryIndex() === i"
+                [attr.aria-pressed]="towelGalleryIndex() === i"
+                [attr.aria-label]="'Afficher la photo ' + (i + 1)"
+                (click)="selectTowelImage(i)"
+              >
+                <span class="visually-hidden">Miniature {{ i + 1 }}</span>
+                <img [src]="src" alt="" width="80" height="80" loading="lazy" />
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  @if (boutiqueProducts().length > 0) {
+    <div id="boutique-catalogue" class="boutique-catalogue-wrap">
+      @for (p of boutiqueProducts(); track trackBoutiqueProduct($index, p)) {
+        <section
+          [id]="boutiqueSectionDomId(p)"
+          class="section section--soft boutique-showcase"
+          [attr.aria-labelledby]="'boutique-cat-title-' + p.id"
+        >
+          <div class="container towel-block boutique-showcase__block">
+            <h2
+              class="section__title section__title--towel boutique-showcase__title"
+              [id]="'boutique-cat-title-' + p.id"
+            >
+              {{ p.name }}
+            </h2>
+            <p class="towel-block__intro muted muted--center boutique-showcase__intro">
+              {{ p.description }}
+            </p>
+            <div class="towel-split boutique-showcase__split">
+              <div class="towel-split__copy">
+                @if (boutiqueHighlights(p).length > 0) {
+                  <ul
+                    class="checklist checklist--towel"
+                    [attr.aria-label]="'Atouts — ' + p.name"
+                  >
+                    @for (line of boutiqueHighlights(p); track $index) {
+                      <li>{{ line }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="muted boutique-showcase__fallback">
+                    Découvrez ce produit dans la galerie, puis ajoutez-le au panier depuis la zone
+                    <strong>Commander</strong> en bas de page.
+                  </p>
+                }
+                <button
+                  type="button"
+                  class="btn btn--primary boutique-showcase__cta"
+                  (click)="scrollToOrder()"
+                >
+                  Commander
+                </button>
+              </div>
+              <div
+                class="towel-product__gallery boutique-showcase__gallery"
+                role="region"
+                [attr.aria-label]="'Galerie photos — ' + p.name"
+              >
+                <div class="towel-product__frame">
+                  @if (boutiqueImageList(p).length > 1) {
+                    <button
+                      type="button"
+                      class="split__nav split__nav--prev"
+                      (click)="prevBoutiqueImage(p)"
+                      aria-label="Photo précédente"
+                    >
+                      ‹
+                    </button>
+                  }
+                  <img
+                    [src]="boutiqueGalleryCurrent(p)"
+                    [attr.alt]="'Photo — ' + p.name"
+                    width="800"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  @if (boutiqueImageList(p).length > 1) {
+                    <button
+                      type="button"
+                      class="split__nav split__nav--next"
+                      (click)="nextBoutiqueImage(p)"
+                      aria-label="Photo suivante"
+                    >
+                      ›
+                    </button>
+                  }
+                </div>
+                @if (boutiqueImageList(p).length > 1) {
+                  <div
+                    class="towel-product__thumbs"
+                    role="group"
+                    [attr.aria-label]="'Choisir une photo — ' + p.name"
+                  >
+                    @for (src of boutiqueImageList(p); track i; let i = $index) {
+                      <button
+                        type="button"
+                        class="towel-product__thumb split__thumb"
+                        [class.towel-product__thumb--active]="boutiqueGalleryIndexFor(p) === i"
+                        [attr.aria-pressed]="boutiqueGalleryIndexFor(p) === i"
+                        [attr.aria-label]="'Afficher la photo ' + (i + 1)"
+                        (click)="selectBoutiqueGalleryImage(p, i)"
+                      >
+                        <span class="visually-hidden">Miniature {{ i + 1 }}</span>
+                        <img [src]="src" alt="" width="80" height="80" loading="lazy" />
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+    </div>
+  }
+
+  <section class="section section--plain" aria-labelledby="faq-title">
+    <div class="container narrow">
+      <h2 id="faq-title" class="section__title section__title--center">
+        Questions fréquentes
+      </h2>
+      <p class="muted muted--center">Réponses rapides avant de commander.</p>
+      <div class="faq">
+        @for (faq of faqs; track trackById($index, faq); let i = $index) {
+          <div class="faq__item">
+            <button
+              type="button"
+              class="faq__question"
+              [attr.aria-expanded]="faqOpenIndex() === i"
+              [attr.aria-controls]="'faq-panel-' + i"
+              [id]="'faq-trigger-' + i"
+              (click)="toggleFaq(i)"
+            >
+              {{ faq.question }}
+              <span class="faq__icon" aria-hidden="true">{{
+                faqOpenIndex() === i ? "−" : "+"
+              }}</span>
+            </button>
+            @if (faqOpenIndex() === i) {
+              <div
+                class="faq__answer"
+                role="region"
+                [attr.aria-labelledby]="'faq-trigger-' + i"
+                [id]="'faq-panel-' + i"
+              >
+                {{ faq.answer }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section
+    id="commande"
+    class="section section--plain order"
+    aria-labelledby="order-title"
+  >
+    <div class="container order-wrap">
+      <h2 id="order-title" class="order-wrap__heading">Commander</h2>
+      <p class="order-wrap__lede muted muted--center">
+        Produits phares, pack duo et catalogue — inscription démo pour poursuivre.
+      </p>
+      <div class="order-grid">
+        <div class="order-card order-card--with-visual order-card--bag">
+          <div class="order-card__media" aria-hidden="true">
+            <img
+              class="order-card__media-img"
+              [src]="bagShowcaseImage"
+              alt=""
+              width="640"
+              height="360"
+              loading="lazy"
+            />
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__header">
+              <span class="badge badge--dark">Démo</span>
+              <h3 class="order-card__name">{{ bagProductTitle }}</h3>
+              <p class="order-card__tagline">Bain sans stress</p>
+            </div>
+            <dl class="order-card__lines">
+              <div class="line">
+                <dt>Prix</dt>
+                <dd>{{ displayUnitPrice() }}</dd>
+              </div>
+              <div class="line">
+                <dt>Livraison</dt>
+                <dd>+ {{ displayShipping() }}</dd>
+              </div>
+              <div class="line line--total">
+                <dt>Total</dt>
+                <dd>{{ displayTotal() }}</dd>
+              </div>
+            </dl>
+            <button
+              type="button"
+              class="btn btn--primary btn--block"
+              (click)="addToCart('bag')"
+            >
+              Ajouter au panier
+            </button>
+          </div>
+        </div>
+        <div class="order-card order-card--with-visual order-card--towel">
+          <div class="order-card__media" aria-hidden="true">
+            <img
+              class="order-card__media-img"
+              [src]="towelShowcaseImage"
+              alt=""
+              width="640"
+              height="360"
+              loading="lazy"
+            />
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__header">
+              <span class="badge badge--amber">Démo</span>
+              <h3 class="order-card__name">{{ towelProductTitle }}</h3>
+              <p class="order-card__tagline">{{ towelTagline }}</p>
+            </div>
+            <dl class="order-card__lines">
+              <div class="line">
+                <dt>Prix</dt>
+                <dd>{{ displayTowelPrice() }}</dd>
+              </div>
+              <div class="line">
+                <dt>Livraison</dt>
+                <dd>+ {{ displayShipping() }}</dd>
+              </div>
+              <div class="line line--total">
+                <dt>Total</dt>
+                <dd>{{ displayTowelTotal() }}</dd>
+              </div>
+            </dl>
+            <button
+              type="button"
+              class="btn btn--towel btn--block"
+              (click)="addToCart('towel')"
+            >
+              Ajouter au panier
+            </button>
+          </div>
+        </div>
+        <div class="order-card order-card--with-visual order-card--pack">
+          <div class="order-card__media" aria-hidden="true">
+            <img
+              class="order-card__media-img"
+              [src]="packDuoShowcaseImage"
+              alt=""
+              width="640"
+              height="360"
+              loading="lazy"
+            />
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__header">
+              <span class="badge badge--dark">Pack</span>
+              <h3 class="order-card__name">{{ packDuoProductTitle }}</h3>
+              <p class="order-card__tagline">{{ packDuoTagline }}</p>
+            </div>
+            <dl class="order-card__lines">
+              <div class="line">
+                <dt>Prix</dt>
+                <dd>{{ displayPackPrice() }}</dd>
+              </div>
+              <div class="line">
+                <dt>Livraison</dt>
+                <dd>+ {{ displayPackShipping() }}</dd>
+              </div>
+              <div class="line line--total">
+                <dt>Total</dt>
+                <dd>{{ displayPackTotal() }}</dd>
+              </div>
+            </dl>
+            <button
+              type="button"
+              class="btn btn--primary btn--block"
+              (click)="addToCart('pack-duo-bain')"
+            >
+              Ajouter le pack au panier
+            </button>
+          </div>
+        </div>
+        @for (p of boutiqueProducts(); track trackBoutiqueProduct($index, p)) {
+          <div class="order-card order-card--with-visual order-card--catalog">
+            <div class="order-card__media" aria-hidden="true">
+              <img
+                class="order-card__media-img"
+                [src]="boutiqueOrderCardImage(p)"
+                alt=""
+                width="640"
+                height="360"
+                loading="lazy"
+              />
+            </div>
+            <div class="order-card__body">
+              <div class="order-card__header">
+                <span class="badge badge--dark">Catalogue</span>
+                <h3 class="order-card__name">{{ p.name }}</h3>
+              </div>
+              <dl class="order-card__lines">
+                <div class="line">
+                  <dt>Prix</dt>
+                  <dd>{{ formatBoutiquePrice(p.price) }}</dd>
+                </div>
+                <div class="line">
+                  <dt>Livraison</dt>
+                  <dd>+ {{ displayShipping() }}</dd>
+                </div>
+                <div class="line line--total">
+                  <dt>Total</dt>
+                  <dd>{{ boutiqueLineTotalDisplay(p) }}</dd>
+                </div>
+              </dl>
+              <button
+                type="button"
+                class="btn btn--primary btn--block"
+                (click)="
+                  addToCart(p.id, {
+                    label: p.name,
+                    unitPrice: p.price,
+                    imageUrl: boutiqueOrderCardImage(p),
+                  })
+                "
+              >
+                Ajouter au panier
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      <p class="hint hint--order">
+        À l’ajout au panier, vous pouvez indiquer que vous avez déjà un compte et
+        saisir uniquement votre téléphone, ou créer un compte avec nom, téléphone
+        et localisation.
+      </p>
+    </div>
+  </section>
+
+  @if (registerModalOpen()) {
+    <app-register-modal
+      (accountCreated)="onAccountCreated()"
+      (dismiss)="closeRegisterModal()"
+    />
+  }
+
+  @if (cartPanelOpen() && hasAccount()) {
+    <div
+      id="cart-panel"
+      class="cart-page"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cart-panel-title"
+      (click)="onCartPageBackdrop($event)"
+    >
+      <div class="cart-page__sheet" (click)="$event.stopPropagation()">
+        <header class="cart-page__head">
+          <h2 id="cart-panel-title" class="cart-page__title">Panier</h2>
+          <button
+            type="button"
+            class="cart-page__close"
+            (click)="closeCartPanel()"
+            aria-label="Fermer le panier"
+          >
+            ×
+          </button>
+        </header>
+        @if (cartLines().length === 0) {
+          <p class="cart-page__empty">Votre panier est vide.</p>
+        } @else {
+          <ul class="cart-page__list">
+            @for (line of cartLines(); track line.id) {
+              <li class="cart-page__row">
+                <div class="cart-page__thumb-wrap">
+                  <img
+                    class="cart-page__thumb"
+                    [src]="cartProductImage(line)"
+                    alt=""
+                    width="96"
+                    height="96"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <div class="cart-page__main">
+                  <span class="cart-page__name">{{ line.label }}</span>
+                  <span class="cart-page__unit"
+                    >{{ displayCartMoney(line.unitPrice) }} ×
+                    {{ line.qty }}</span
+                  >
+                  <span class="cart-page__line-total">{{
+                    displayCartMoney(line.unitPrice * line.qty)
+                  }}</span>
+                </div>
+                <div
+                  class="cart-page__qty"
+                  role="group"
+                  [attr.aria-label]="'Quantité pour ' + line.label"
+                >
+                  <button
+                    type="button"
+                    class="cart-page__qty-btn"
+                    (click)="decrementCartLine(line.id)"
+                    [attr.aria-label]="'Retirer une unité de ' + line.label"
+                  >
+                    −
+                  </button>
+                  <span class="cart-page__qty-val">{{ line.qty }}</span>
+                  <button
+                    type="button"
+                    class="cart-page__qty-btn"
+                    (click)="addToCart(line.id)"
+                    [attr.aria-label]="'Ajouter une unité de ' + line.label"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="cart-page__remove"
+                  (click)="removeCartLine(line.id)"
+                >
+                  Retirer
+                </button>
+              </li>
+            }
+          </ul>
+          <div class="cart-page__totals">
+            <div class="cart-page__total-line">
+              <span>Sous-total</span>
+              <span>{{ displayCartMoney(cartSubtotal()) }}</span>
+            </div>
+            <div class="cart-page__total-line">
+              <span>Livraison</span>
+              <span>+ {{ displayCartShipping() }}</span>
+            </div>
+            <div class="cart-page__total-line cart-page__total-line--grand">
+              <span>Total</span>
+              <span>{{ displayCartMoney(cartTotalWithShipping()) }}</span>
+            </div>
+          </div>
+        }
+        <div
+          class="cart-page__actions"
+          role="group"
+          aria-label="Actions du panier"
+        >
+          <button
+            type="button"
+            class="btn btn--outline cart-page__action-btn"
+            (click)="closeCartPanel()"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="btn btn--primary cart-page__action-btn"
+            (click)="continueFromCart()"
+          >
+            Confirmer la commande
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <footer class="footer">
+    <div class="container text-center">
+      <small
+        >© {{ siteBrand }} — sac de douche &amp; serviette — Angular +
+        Django</small
+      >
+    </div>
+  </footer>
+</div>

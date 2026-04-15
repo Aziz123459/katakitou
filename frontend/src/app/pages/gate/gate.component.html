@@ -1,0 +1,42 @@
+<div class="gate">
+  <div class="gate__panel">
+    <h1 class="gate__brand">{{ siteBrand }}</h1>
+    <p class="gate__tagline">Sac de douche &amp; serviette — toilettage zen pour chats.</p>
+
+    <div class="gate__actions">
+      <a routerLink="/boutique" class="gate__btn gate__btn--primary"> Continuer vers la boutique </a>
+      <p class="gate__hint">Parcours client : produits, panier, commande.</p>
+    </div>
+
+    <div class="gate__admin" aria-labelledby="gate-admin-title">
+      <h2 id="gate-admin-title" class="gate__admin-title">Espace administrateur</h2>
+      <div class="gate__fields">
+        <label class="gate__label" for="gate-user">E-mail</label>
+        <input
+          id="gate-user"
+          type="email"
+          class="gate__input"
+          name="adminEmail"
+          [(ngModel)]="adminEmail"
+          autocomplete="email"
+        />
+        <label class="gate__label" for="gate-pass">Mot de passe</label>
+        <input
+          id="gate-pass"
+          type="password"
+          class="gate__input"
+          name="adminPassword"
+          [(ngModel)]="adminPassword"
+          autocomplete="current-password"
+          (keydown.enter)="loginAdmin()"
+        />
+      </div>
+      @if (adminError()) {
+        <p class="gate__error" role="alert">{{ adminError() }}</p>
+      }
+      <button type="button" class="gate__btn gate__btn--admin" (click)="loginAdmin()" [disabled]="adminLoading()">
+        {{ adminLoading() ? 'Connexion…' : 'Connexion tableau de bord' }}
+      </button>
+    </div>
+  </div>
+</div>
