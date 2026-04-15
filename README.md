@@ -77,6 +77,36 @@ git commit -m "Description courte des changements"
 git push
 ```
 
+## Déploiement (Render + front statique)
+
+Le dépôt inclut une base prête pour la prod : **Gunicorn**, **WhiteNoise** (fichiers statiques Django), **CORS** configurable, **`DATABASE_URL`** (Postgres Render / Heroku).
+
+### Variables d’environnement (API)
+
+| Variable | Exemple / rôle |
+|----------|----------------|
+| `DJANGO_DEBUG` | `0` en production |
+| `DJANGO_SECRET_KEY` | Chaîne longue aléatoire (obligatoire) |
+| `DJANGO_ALLOWED_HOSTS` | `mon-api.onrender.com` (sans `https://`, plusieurs séparés par des virgules) |
+| `DJANGO_CORS_ALLOWED_ORIGINS` | `https://mon-front.pages.dev` (URLs complètes avec `https://`, plusieurs = virgules) |
+| `DATABASE_URL` | Fourni automatiquement si Postgres **lié** sur Render (`postgres://…`) |
+| `DJANGO_SERVE_MEDIA` | `1` pour servir `/media/` via Django (démo ; en vrai prod prévoir S3 / R2) |
+
+Fichiers utiles : `backend/Procfile`, `render.yaml` (blueprint optionnel à la racine), `backend/.env.example`.
+
+### Commandes Render (service web, **root directory** = `backend`)
+
+- **Build** : `pip install -r requirements.txt && python manage.py collectstatic --noinput`
+- **Start** : `python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
+
+Tester : `https://<votre-service>/api/health/`
+
+### Front (Angular)
+
+1. Dans `frontend/src/environments/environment.prod.ts`, remplacez **`apiBaseUrl`** par l’URL HTTPS de l’API (même valeur que côté CORS).
+2. Build : `cd frontend && npm ci && npm run build`
+3. Déployez le contenu du dossier **`frontend/dist/cat-bag-shop/browser`** sur Cloudflare Pages, Netlify, etc.
+
 ## Documentation
 
 - [frontend/README.md](frontend/README.md)

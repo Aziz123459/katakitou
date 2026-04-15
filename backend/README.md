@@ -23,6 +23,8 @@ copy .env.example .env
 
 Éditez `.env` : au minimum `DJANGO_SECRET_KEY` en production.
 
+**Déploiement (Gunicorn, Postgres `DATABASE_URL`, CORS, collectstatic)** : voir la section *Déploiement* du [README à la racine](../README.md) et `Procfile`.
+
 ### PostgreSQL (commandes / achats en base serveur)
 
 1. Installez PostgreSQL et créez une base, par ex. `kokozito` (utilisateur avec droits sur cette base).

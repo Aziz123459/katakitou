@@ -6,6 +6,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,9 +68,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# SQLite par défaut (dev). Définir POSTGRES_DB (+ optionnellement USER, PASSWORD, HOST, PORT) pour PostgreSQL.
+# Base de données : DATABASE_URL (Render, Heroku, etc.) > POSTGRES_* > SQLite local.
+_database_url = os.environ.get('DATABASE_URL', '').strip()
 _postgres_db = os.environ.get('POSTGRES_DB', '').strip()
-if _postgres_db:
+if _database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=_database_url,
+            conn_max_age=600,
+            ssl_require=os.environ.get('DATABASE_SSL_REQUIRE', '0') == '1',
+        ),
+    }
+elif _postgres_db:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -106,16 +117,32 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:4200',
-    'http://127.0.0.1:4200',
+# Fichiers statiques en prod (admin Django, etc.) — collectstatic + WhiteNoise.
+if not DEBUG:
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+        },
+    }
+
+# CORS : origines dev + liste séparée par virgules dans DJANGO_CORS_ALLOWED_ORIGINS (URLs complètes avec schéma).
+_cors_default = ['http://localhost:4200', 'http://127.0.0.1:4200']
+_cors_extra = [
+    u.strip()
+    for u in os.environ.get('DJANGO_CORS_ALLOWED_ORIGINS', '').split(',')
+    if u.strip()
 ]
+CORS_ALLOWED_ORIGINS = list(dict.fromkeys(_cors_default + _cors_extra))
 
 CORS_ALLOW_CREDENTIALS = True
 
