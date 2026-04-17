@@ -77,35 +77,83 @@ git commit -m "Description courte des changements"
 git push
 ```
 
-## Déploiement (Render + front statique)
+## Déploiement — pas à pas (Render + front statique)
 
-Le dépôt inclut une base prête pour la prod : **Gunicorn**, **WhiteNoise** (fichiers statiques Django), **CORS** configurable, **`DATABASE_URL`** (Postgres Render / Heroku).
+Le dépôt est prêt côté prod : **Gunicorn**, **WhiteNoise**, **CORS** via variables d’environnement, **`DATABASE_URL`** pour Postgres (Render, etc.). Fichiers utiles : `backend/Procfile`, `render.yaml` (blueprint optionnel), `backend/.env.example`.
 
-### Variables d’environnement (API)
+### Étape 1 — Pousser le code sur GitHub
 
-| Variable | Exemple / rôle |
-|----------|----------------|
+Après vos modifications locales :
+
+```bash
+git add .
+git commit -m "Message décrivant les changements"
+git push
+```
+
+### Étape 2 — Créer l’API sur Render
+
+1. Créez un compte sur [Render](https://render.com) et un **Web Service** lié à votre dépôt GitHub.
+2. **Root directory** : `backend`.
+3. **Build command** :
+
+   ```text
+   pip install -r requirements.txt && python manage.py collectstatic --noinput
+   ```
+
+4. **Start command** :
+
+   ```text
+   python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+   ```
+
+5. Créez une base **PostgreSQL** sur Render et **associez-la** au service (Render fournit souvent `DATABASE_URL` automatiquement).
+6. Dans **Environment** du service, définissez au minimum :
+
+| Variable | Rôle |
+|----------|------|
 | `DJANGO_DEBUG` | `0` en production |
 | `DJANGO_SECRET_KEY` | Chaîne longue aléatoire (obligatoire) |
-| `DJANGO_ALLOWED_HOSTS` | `mon-api.onrender.com` (sans `https://`, plusieurs séparés par des virgules) |
-| `DJANGO_CORS_ALLOWED_ORIGINS` | `https://mon-front.pages.dev` (URLs complètes avec `https://`, plusieurs = virgules) |
-| `DATABASE_URL` | Fourni automatiquement si Postgres **lié** sur Render (`postgres://…`) |
-| `DJANGO_SERVE_MEDIA` | `1` pour servir `/media/` via Django (démo ; en vrai prod prévoir S3 / R2) |
+| `DJANGO_ALLOWED_HOSTS` | Hôte de l’API, ex. `mon-api.onrender.com` (**sans** `https://`, plusieurs = virgules) |
+| `DJANGO_CORS_ALLOWED_ORIGINS` | URL(s) **HTTPS** du front, ex. `https://mon-front.pages.dev` (plusieurs = virgules). À mettre à jour à l’étape 6 une fois l’URL du front connue. |
+| `DATABASE_URL` | Souvent injecté automatiquement quand Postgres est lié |
+| `DJANGO_SERVE_MEDIA` | Optionnel : `1` pour servir `/media/` via Django (**démo** ; disque Render peut être réinitialisé — en prod sérieuse prévoir S3 / R2) |
 
-Fichiers utiles : `backend/Procfile`, `render.yaml` (blueprint optionnel à la racine), `backend/.env.example`.
+7. Déployez le service et notez l’**URL HTTPS** de l’API (ex. `https://mon-api.onrender.com`).
+8. Testez : `https://<votre-service>/api/health/`
 
-### Commandes Render (service web, **root directory** = `backend`)
+*(Vous pouvez aussi utiliser `render.yaml` à la racine ; vérifiez les offres Render actuelles.)*
 
-- **Build** : `pip install -r requirements.txt && python manage.py collectstatic --noinput`
-- **Start** : `python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
+### Étape 3 — Pointer le front vers l’API
 
-Tester : `https://<votre-service>/api/health/`
+1. Ouvrez `frontend/src/environments/environment.prod.ts`.
+2. Remplacez **`apiBaseUrl`** par l’URL HTTPS exacte de l’API (étape 2.7).
 
-### Front (Angular)
+### Étape 4 — Build du front
 
-1. Dans `frontend/src/environments/environment.prod.ts`, remplacez **`apiBaseUrl`** par l’URL HTTPS de l’API (même valeur que côté CORS).
-2. Build : `cd frontend && npm ci && npm run build`
-3. Déployez le contenu du dossier **`frontend/dist/cat-bag-shop/browser`** sur Cloudflare Pages, Netlify, etc.
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+Dossier à publier : **`frontend/dist/cat-bag-shop/browser`**.
+
+### Étape 5 — Héberger le site statique
+
+Sur **Cloudflare Pages** ou **Netlify** : connectez le dépôt ou uploadez le dossier `browser`. Si le build se fait sur la plateforme : racine **`frontend`**, commande `npm ci && npm run build`, répertoire de sortie **`dist/cat-bag-shop/browser`**. Notez l’URL HTTPS du site.
+
+### Étape 6 — Aligner le CORS
+
+Sur Render, mettez **`DJANGO_CORS_ALLOWED_ORIGINS`** à l’URL exacte du front (`https://…`), puis redéployez l’API si besoin.
+
+### Étape 7 — Tester
+
+Testez inscription, catalogue, panier. En cas d’erreur : F12 → **Console** / **Network** (souvent CORS ou `apiBaseUrl`).
+
+### Étape 8 — (Optionnel) Committer la config prod
+
+Après avoir fixé `environment.prod.ts`, `git add` / `commit` / `push` (l’URL sera visible sur GitHub ; acceptable si le dépôt est privé).
 
 ## Documentation
 

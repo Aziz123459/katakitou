@@ -5,6 +5,7 @@ Django settings — projet kokozito (API REST).
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 import dj_database_url
 from dotenv import load_dotenv
@@ -17,11 +18,22 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-dev-only-chang
 
 DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
 
-ALLOWED_HOSTS = [
+_allowed_hosts = [
     h.strip()
     for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
     if h.strip()
 ]
+# Render : RENDER_EXTERNAL_HOSTNAME ou RENDER_EXTERNAL_URL ; secours .onrender.com si RENDER=true.
+_render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if not _render_hostname:
+    _external_url = os.environ.get('RENDER_EXTERNAL_URL', '').strip()
+    if _external_url:
+        _render_hostname = (urlparse(_external_url).hostname or '').strip()
+if _render_hostname and _render_hostname not in _allowed_hosts:
+    _allowed_hosts.append(_render_hostname)
+if os.environ.get('RENDER', '').lower() == 'true' and '.onrender.com' not in _allowed_hosts:
+    _allowed_hosts.append('.onrender.com')
+ALLOWED_HOSTS = _allowed_hosts
 
 INSTALLED_APPS = [
     'django.contrib.admin',

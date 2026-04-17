@@ -10,5 +10,5 @@ export const environment = {
   demoTowelPriceTnd: 28,
   demoPackDuoPriceTnd: 60_000,
   demoPackShippingTnd: 7_000,
-  apiBaseUrl: 'https://REMPLACEZ-VOTRE-API.onrender.com',
+  apiBaseUrl: 'https://katakitou.onrender.com',
 };
