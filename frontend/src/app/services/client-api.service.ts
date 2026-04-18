@@ -5,8 +5,8 @@ import { Observable, catchError, map, of, tap } from 'rxjs';
 import type { CartLine } from '@app/models/order-history.model';
 import { environment } from '../../environments/environment';
 
-const STORAGE_CLIENT_TOKEN = 'kokozito_client_token';
-const STORAGE_PROFILE = 'kokozito_profile';
+const STORAGE_CLIENT_TOKEN = 'katakitou_client_token';
+const STORAGE_PROFILE = 'katakitou_profile';
 
 export interface ClientProfileResponse {
   readonly name: string;
@@ -34,7 +34,7 @@ export class ClientApiService {
   }
 
   /**
-   * Garantit la présence de `kokozito_client_token` si `kokozito_profile` existe (inscription ancienne).
+   * Garantit la présence de `katakitou_client_token` si `katakitou_profile` existe (inscription ancienne).
    */
   ensureTokenFromProfile(): Observable<boolean> {
     if (typeof localStorage === 'undefined') {

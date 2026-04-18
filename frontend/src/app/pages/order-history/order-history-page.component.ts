@@ -33,8 +33,8 @@ export class OrderHistoryPageComponent implements OnInit {
 
   private thanksHideTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly logoSrc = '/media/logo-kokozito.jpg';
-  readonly siteBrand = 'Kokozito';
+  readonly logoSrc = '/media/logo-katakitou.jpg';
+  readonly siteBrand = 'Katakitou';
 
   readonly bagThumb = landingImage('gallery1');
   readonly towelThumb = landingImage('towelMain');

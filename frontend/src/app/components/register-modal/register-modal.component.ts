@@ -10,12 +10,14 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, switchMap, take } from 'rxjs';
 
 import type { IRegisterResponse } from '@app/models/register.models';
 import { ClientApiService } from '@app/services/client-api.service';
 import { RegisterService } from '@app/services/register.service';
+import { messageForHttpError } from '@app/shared/http-error-message';
 
 type IAccessStep = 'choose' | 'existing' | 'new';
 
@@ -101,18 +103,25 @@ export class RegisterModalComponent implements OnInit {
     this.accessStep.set('choose');
   }
 
+  clearServerError(): void {
+    this.serverError.set(null);
+    this.cdr.markForCheck();
+  }
+
   private setErrorFromHttp(err: unknown): void {
-    const body = (err as { error?: unknown })?.error;
-    if (typeof body === 'object' && body !== null && !Array.isArray(body)) {
-      const parts = Object.entries(body as Record<string, unknown>).flatMap(([k, v]) => {
-        if (Array.isArray(v)) {
-          return v.map((m) => `${k}: ${String(m)}`);
-        }
-        return [`${k}: ${String(v)}`];
-      });
-      this.serverError.set(parts.length > 0 ? parts.join(' — ') : 'Action impossible.');
+    if (err instanceof HttpErrorResponse) {
+      this.serverError.set(
+        messageForHttpError(err, {
+          unauthorizedFallback:
+            'Aucun compte ne correspond à ce numéro, ou la connexion a été refusée.',
+          invalidPayloadFallback:
+            'Certaines informations ne sont pas acceptées. Corrigez les champs indiqués ci‑dessous.',
+        }),
+      );
     } else {
-      this.serverError.set('Erreur réseau ou serveur indisponible.');
+      this.serverError.set(
+        'Une erreur inattendue s’est produite. Vérifiez votre connexion puis réessayez.',
+      );
     }
     this.cdr.markForCheck();
   }
@@ -131,7 +140,7 @@ export class RegisterModalComponent implements OnInit {
         take(1),
         switchMap((res) => {
           if (typeof localStorage !== 'undefined') {
-            localStorage.setItem('kokozito_client_token', res.access_token);
+            localStorage.setItem('katakitou_client_token', res.access_token);
           }
           return this.clientApi.getProfile();
         }),
@@ -141,7 +150,7 @@ export class RegisterModalComponent implements OnInit {
         next: (prof) => {
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem(
-              'kokozito_profile',
+              'katakitou_profile',
               JSON.stringify({
                 name: prof.name,
                 phone: prof.phone,
@@ -176,7 +185,7 @@ export class RegisterModalComponent implements OnInit {
           const v = this.form.getRawValue();
           if (typeof localStorage !== 'undefined') {
             localStorage.setItem(
-              'kokozito_profile',
+              'katakitou_profile',
               JSON.stringify({
                 name: v.name,
                 phone: v.phone,
@@ -184,7 +193,7 @@ export class RegisterModalComponent implements OnInit {
               }),
             );
             if (res.access_token) {
-              localStorage.setItem('kokozito_client_token', res.access_token);
+              localStorage.setItem('katakitou_client_token', res.access_token);
             }
           }
           this.accountCreated.emit();

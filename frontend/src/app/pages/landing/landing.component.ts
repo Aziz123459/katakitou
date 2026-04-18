@@ -33,8 +33,8 @@ export interface BoutiqueProductRow {
   readonly image_urls?: readonly string[];
 }
 
-const STORAGE_ACCOUNT = 'kokozito_account';
-const STORAGE_CART = 'kokozito_cart';
+const STORAGE_ACCOUNT = 'katakitou_account';
+const STORAGE_CART = 'katakitou_cart';
 
 @Component({
   selector: 'app-landing',
@@ -54,8 +54,8 @@ export class LandingPageComponent implements OnInit {
 
   private cartSyncTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly logoSrc = '/media/logo-kokozito.jpg';
-  readonly siteBrand = 'Kokozito';
+  readonly logoSrc = '/media/logo-katakitou.jpg';
+  readonly siteBrand = 'Katakitou';
   readonly bagProductTitle = 'Sac de douche pour chats';
   readonly towelProductTitle = 'Serviette à capuche canard';
   readonly towelTagline = 'Ultra-absorbante, ludique et douce après le bain';
@@ -580,12 +580,12 @@ export class LandingPageComponent implements OnInit {
       this.orderApi.syncOrder(payload).subscribe({
         next: () => {
           if (!environment.production) {
-            console.debug('[Kokozito] Commande enregistrée côté serveur.');
+            console.debug('[Katakitou] Commande enregistrée côté serveur.');
           }
           this.orderHistoryService.refreshFromServer();
           if (
             typeof localStorage !== 'undefined' &&
-            localStorage.getItem('kokozito_client_token')
+            localStorage.getItem('katakitou_client_token')
           ) {
             this.clientApi.putCart([]).subscribe({ error: () => undefined });
           }
@@ -599,7 +599,7 @@ export class LandingPageComponent implements OnInit {
         },
         error: (err: unknown) => {
           console.error(
-            '[Kokozito] Échec envoi de la commande au serveur. Vérifiez que Django tourne sur',
+            '[Katakitou] Échec envoi de la commande au serveur. Vérifiez que Django tourne sur',
             environment.apiBaseUrl,
             err,
           );
@@ -697,7 +697,7 @@ export class LandingPageComponent implements OnInit {
       return;
     }
     const lines = this.cartLines();
-    const token = localStorage.getItem('kokozito_client_token');
+    const token = localStorage.getItem('katakitou_client_token');
     if (token) {
       if (this.cartSyncTimer !== null) {
         clearTimeout(this.cartSyncTimer);

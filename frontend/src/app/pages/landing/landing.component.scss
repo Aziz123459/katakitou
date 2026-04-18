@@ -1715,29 +1715,6 @@
   font-size: 1.1rem;
 }
 
-.hint {
-  margin: 0 0 1rem;
-  font-size: 0.9rem;
-  color: var(--color-secondary);
-  line-height: 1.5;
-}
-
-.hint--order {
-  margin-top: 0.75rem;
-  text-align: center;
-  max-width: min(100%, 42rem);
-  margin-left: auto;
-  margin-right: auto;
-  font-size: clamp(0.72rem, 2vw, 0.85rem);
-}
-
-.footer {
-  padding: var(--section-y) var(--section-x) calc(var(--section-y) + 0.5rem);
-  color: #6b7280;
-  font-size: clamp(0.72rem, 2vw, 0.82rem);
-  background: #faf5ff;
-}
-
 .visually-hidden {
   position: absolute;
   width: 1px;

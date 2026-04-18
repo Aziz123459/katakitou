@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 
 import { environment } from '../../environments/environment';
 
-const SESSION_KEY = 'kokozito_analytics_ping';
+const SESSION_KEY = 'katakitou_analytics_ping';
 
 @Injectable({
   providedIn: 'root',

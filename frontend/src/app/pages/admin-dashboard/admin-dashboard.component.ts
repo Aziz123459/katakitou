@@ -612,7 +612,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (typeof localStorage === 'undefined') {
       return -1;
     }
-    const raw = localStorage.getItem('kokozito_admin_user_id');
+    const raw = localStorage.getItem('katakitou_admin_user_id');
     const n = raw ? Number.parseInt(raw, 10) : Number.NaN;
     return Number.isNaN(n) ? -1 : n;
   }
@@ -780,10 +780,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    localStorage.removeItem('kokozito_admin_token');
-    localStorage.removeItem('kokozito_admin_refresh');
-    localStorage.removeItem('kokozito_admin_role');
-    localStorage.removeItem('kokozito_admin_user_id');
+    localStorage.removeItem('katakitou_admin_token');
+    localStorage.removeItem('katakitou_admin_refresh');
+    localStorage.removeItem('katakitou_admin_role');
+    localStorage.removeItem('katakitou_admin_user_id');
     void this.router.navigate(['/']);
   }
 }

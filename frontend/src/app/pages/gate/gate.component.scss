@@ -125,8 +125,26 @@
   }
 }
 
-.gate__error {
+.gate__alert {
+  margin: 0.65rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  outline: none;
+}
+
+.gate__alert-title {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #991b1b;
+  letter-spacing: 0.01em;
+}
+
+.gate__alert-body {
   margin: 0.35rem 0 0;
   font-size: 0.8rem;
-  color: #b91c1c;
+  line-height: 1.45;
+  color: #7f1d1d;
 }

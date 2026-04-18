@@ -6,7 +6,7 @@ import type { OrderHistoryEntry } from '@app/models/order-history.model';
 import { ClientApiService } from '@app/services/client-api.service';
 import { environment } from '../../environments/environment';
 
-const STORAGE_CLIENT_TOKEN = 'kokozito_client_token';
+const STORAGE_CLIENT_TOKEN = 'katakitou_client_token';
 
 @Injectable({
   providedIn: 'root',

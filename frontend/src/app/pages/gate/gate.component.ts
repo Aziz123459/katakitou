@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AnalyticsService } from '@app/services/analytics.service';
+import { messageForHttpError } from '@app/shared/http-error-message';
 import { environment } from '../../../environments/environment';
 
 interface LoginResponse {
@@ -32,7 +33,7 @@ export class GatePageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly analytics = inject(AnalyticsService);
 
-  readonly siteBrand = 'Kokozito';
+  readonly siteBrand = 'Katakitou';
 
   adminEmail = '';
   adminPassword = '';
@@ -46,8 +47,12 @@ export class GatePageComponent implements OnInit {
   loginAdmin(): void {
     this.adminError.set(null);
     const ident = this.adminEmail.trim();
-    if (!ident || !this.adminPassword) {
-      this.adminError.set('Renseignez l’e-mail (ou le nom d’utilisateur) et le mot de passe.');
+    if (!ident) {
+      this.adminError.set('Indiquez votre e-mail ou votre nom d’utilisateur.');
+      return;
+    }
+    if (!this.adminPassword) {
+      this.adminError.set('Indiquez votre mot de passe.');
       return;
     }
     const body =
@@ -61,31 +66,32 @@ export class GatePageComponent implements OnInit {
         next: (res) => {
           this.adminLoading.set(false);
           if (res.role !== 'admin') {
-            this.adminError.set('Ce compte n’est pas administrateur.');
+            this.adminError.set(
+              'Ce compte n’a pas le rôle administrateur. Utilisez un compte autorisé pour le tableau de bord.',
+            );
             return;
           }
-          localStorage.setItem('kokozito_admin_token', res.access);
-          localStorage.setItem('kokozito_admin_refresh', res.refresh);
-          localStorage.setItem('kokozito_admin_role', res.role);
-          localStorage.setItem('kokozito_admin_user_id', String(res.user_id));
+          localStorage.setItem('katakitou_admin_token', res.access);
+          localStorage.setItem('katakitou_admin_refresh', res.refresh);
+          localStorage.setItem('katakitou_admin_role', res.role);
+          localStorage.setItem('katakitou_admin_user_id', String(res.user_id));
           void this.router.navigate(['/admin']);
         },
         error: (err: HttpErrorResponse) => {
           this.adminLoading.set(false);
-          if (err.status === 401) {
-            const raw = err.error as { detail?: string } | null;
-            const detail = typeof raw?.detail === 'string' ? raw.detail.trim() : '';
-            this.adminError.set(
-              detail || 'E-mail / nom d’utilisateur ou mot de passe incorrect.',
-            );
-          } else if (err.status === 0) {
-            this.adminError.set(
-              'Impossible de joindre l’API (réseau, CORS ou mauvaise URL). Vérifiez le déploiement du front et apiBaseUrl.',
-            );
-          } else {
-            this.adminError.set('Identifiants incorrects ou serveur indisponible.');
-          }
+          this.adminError.set(
+            messageForHttpError(err, {
+              unauthorizedFallback:
+                'Connexion refusée : e-mail ou nom d’utilisateur ou mot de passe incorrect.',
+              invalidPayloadFallback:
+                'Les informations envoyées ne sont pas valides. Vérifiez l’e-mail ou le nom d’utilisateur et le mot de passe.',
+            }),
+          );
         },
       });
+  }
+
+  clearAdminError(): void {
+    this.adminError.set(null);
   }
 }

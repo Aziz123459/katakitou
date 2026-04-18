@@ -11,7 +11,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url.includes('/api/admin/')) {
     const token =
       typeof localStorage !== 'undefined'
-        ? localStorage.getItem('kokozito_admin_token')
+        ? localStorage.getItem('katakitou_admin_token')
         : null;
     if (!token) {
       return next(req);
@@ -28,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url.includes('/api/client/')) {
     const clientToken =
       typeof localStorage !== 'undefined'
-        ? localStorage.getItem('kokozito_client_token')
+        ? localStorage.getItem('katakitou_client_token')
         : null;
     if (!clientToken) {
       return next(req);

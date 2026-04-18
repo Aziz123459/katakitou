@@ -19,6 +19,7 @@
           name="adminEmail"
           [(ngModel)]="adminEmail"
           autocomplete="username"
+          (input)="clearAdminError()"
         />
         <label class="gate__label" for="gate-pass">Mot de passe</label>
         <input
@@ -29,10 +30,14 @@
           [(ngModel)]="adminPassword"
           autocomplete="current-password"
           (keydown.enter)="loginAdmin()"
+          (input)="clearAdminError()"
         />
       </div>
       @if (adminError()) {
-        <p class="gate__error" role="alert">{{ adminError() }}</p>
+        <div class="gate__alert" role="alert" aria-live="assertive" tabindex="-1">
+          <span class="gate__alert-title">Impossible de se connecter</span>
+          <p class="gate__alert-body">{{ adminError() }}</p>
+        </div>
       }
       <button type="button" class="gate__btn gate__btn--admin" (click)="loginAdmin()" [disabled]="adminLoading()">
         {{ adminLoading() ? 'Connexion…' : 'Connexion tableau de bord' }}

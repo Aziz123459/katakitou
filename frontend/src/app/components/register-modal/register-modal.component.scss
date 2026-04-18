@@ -72,6 +72,10 @@
   padding-bottom: 0;
 }
 
+.modal-form--alert-wrap {
+  padding-top: 0.5rem;
+}
+
 .modal-choose {
   padding: 0.75rem 1.25rem 1.5rem;
   display: flex;
@@ -104,12 +108,26 @@
 }
 
 .modal-form__alert {
-  padding: 0.65rem 0.85rem;
-  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
   background: #fef2f2;
-  color: #b91c1c;
-  font-size: 0.875rem;
+  outline: none;
+}
+
+.modal-form__alert-title {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #991b1b;
+  letter-spacing: 0.01em;
+}
+
+.modal-form__alert-body {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
   line-height: 1.45;
+  color: #7f1d1d;
 }
 
 .field {

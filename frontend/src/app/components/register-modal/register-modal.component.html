@@ -18,8 +18,15 @@
     </div>
 
     @if (serverError()) {
-      <div class="modal-form modal-form--flush-top" role="alert">
-        <div class="modal-form__alert">{{ serverError() }}</div>
+      <div
+        class="modal-form modal-form--flush-top modal-form--alert-wrap"
+        role="alert"
+        aria-live="assertive"
+      >
+        <div class="modal-form__alert" tabindex="-1">
+          <span class="modal-form__alert-title">Action impossible</span>
+          <p class="modal-form__alert-body">{{ serverError() }}</p>
+        </div>
       </div>
     }
 
@@ -52,9 +59,16 @@
             formControlName="phone"
             autocomplete="tel"
             maxlength="32"
+            (input)="clearServerError()"
           />
           @if (existingForm.controls.phone.invalid && existingForm.controls.phone.touched) {
-            <span class="field__error">Le numéro est requis.</span>
+            <span class="field__error">
+              @if (existingForm.controls.phone.errors?.['required']) {
+                Le numéro est requis.
+              } @else if (existingForm.controls.phone.errors?.['maxlength']) {
+                Le numéro est trop long (32 caractères maximum).
+              }
+            </span>
           }
         </div>
         <button type="button" class="modal-form__link" (click)="backToChoose()">
@@ -80,9 +94,16 @@
             formControlName="name"
             autocomplete="name"
             maxlength="150"
+            (input)="clearServerError()"
           />
           @if (form.controls.name.invalid && form.controls.name.touched) {
-            <span class="field__error">Le nom est requis.</span>
+            <span class="field__error">
+              @if (form.controls.name.errors?.['required']) {
+                Le nom est requis.
+              } @else if (form.controls.name.errors?.['maxlength']) {
+                Le nom est trop long (150 caractères maximum).
+              }
+            </span>
           }
         </div>
 
@@ -95,9 +116,16 @@
             formControlName="phone"
             autocomplete="tel"
             maxlength="32"
+            (input)="clearServerError()"
           />
           @if (form.controls.phone.invalid && form.controls.phone.touched) {
-            <span class="field__error">Le numéro est requis.</span>
+            <span class="field__error">
+              @if (form.controls.phone.errors?.['required']) {
+                Le numéro est requis.
+              } @else if (form.controls.phone.errors?.['maxlength']) {
+                Le numéro est trop long (32 caractères maximum).
+              }
+            </span>
           }
         </div>
 
@@ -111,9 +139,16 @@
             rows="2"
             maxlength="2000"
             placeholder="Ex. Tunis, Tunisie"
+            (input)="clearServerError()"
           ></textarea>
           @if (form.controls.localization.invalid && form.controls.localization.touched) {
-            <span class="field__error">La localisation est requise.</span>
+            <span class="field__error">
+              @if (form.controls.localization.errors?.['required']) {
+                La localisation est requise.
+              } @else if (form.controls.localization.errors?.['maxlength']) {
+                Le texte est trop long (2000 caractères maximum).
+              }
+            </span>
           }
         </div>
 

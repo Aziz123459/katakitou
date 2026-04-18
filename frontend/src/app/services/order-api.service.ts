@@ -48,7 +48,7 @@ export class OrderApiService {
     }
     let profile: { name?: string; phone?: string; location?: string } = {};
     try {
-      const raw = localStorage.getItem('kokozito_profile');
+      const raw = localStorage.getItem('katakitou_profile');
       if (raw) {
         profile = JSON.parse(raw) as typeof profile;
       }

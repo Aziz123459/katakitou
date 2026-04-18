@@ -1,6 +1,6 @@
 /**
  * Visuels dans `frontend/public/media/shop/` (noms courts, compatibles URL).
- * Source : copie depuis `kokozito/adpic/` — mettre à jour les fichiers dans ce dossier si besoin.
+ * Source : copie depuis `katakitou/adpic/` — mettre à jour les fichiers dans ce dossier si besoin.
  */
 export const SHOP_MEDIA_BASE = '/media/shop';
 

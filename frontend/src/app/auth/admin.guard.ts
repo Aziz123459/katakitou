@@ -6,8 +6,8 @@ export function hasAdminSession(): boolean {
   if (typeof localStorage === 'undefined') {
     return false;
   }
-  const token = localStorage.getItem('kokozito_admin_token');
-  const role = localStorage.getItem('kokozito_admin_role');
+  const token = localStorage.getItem('katakitou_admin_token');
+  const role = localStorage.getItem('katakitou_admin_role');
   return !!(token && role === 'admin');
 }
 
