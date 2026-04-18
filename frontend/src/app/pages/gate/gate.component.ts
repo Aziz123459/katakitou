@@ -73,7 +73,11 @@ export class GatePageComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           this.adminLoading.set(false);
           if (err.status === 401) {
-            this.adminError.set('E-mail / nom d’utilisateur ou mot de passe incorrect.');
+            const raw = err.error as { detail?: string } | null;
+            const detail = typeof raw?.detail === 'string' ? raw.detail.trim() : '';
+            this.adminError.set(
+              detail || 'E-mail / nom d’utilisateur ou mot de passe incorrect.',
+            );
           } else if (err.status === 0) {
             this.adminError.set(
               'Impossible de joindre l’API (réseau, CORS ou mauvaise URL). Vérifiez le déploiement du front et apiBaseUrl.',

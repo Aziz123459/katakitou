@@ -35,10 +35,17 @@ class KokozitoTokenSerializer(TokenObtainPairSerializer):
             User = get_user_model()
             try:
                 user_obj = User.objects.get(email__iexact=email)
-            except (User.DoesNotExist, User.MultipleObjectsReturned):
+            except User.DoesNotExist:
                 raise AuthenticationFailed(
-                    self.error_messages['no_active_account'],
+                    'Aucun compte avec cette adresse e-mail. '
+                    'Créez ou mettez à jour le superuser avec KOKOZITO_SUPERUSER_EMAIL, '
+                    'ou connectez-vous avec le nom d’utilisateur Django.',
                     'no_active_account',
+                )
+            except User.MultipleObjectsReturned:
+                raise AuthenticationFailed(
+                    'Plusieurs comptes correspondent à cette adresse e-mail.',
+                    'multiple_accounts',
                 )
             attrs[self.username_field] = user_obj.get_username()
         elif username:
@@ -48,7 +55,16 @@ class KokozitoTokenSerializer(TokenObtainPairSerializer):
                 {'email': 'Indiquez une adresse e-mail ou un nom d’utilisateur.'},
             )
 
-        data = super().validate(attrs)
+        try:
+            data = super().validate(attrs)
+        except AuthenticationFailed as exc:
+            if email:
+                raise AuthenticationFailed(
+                    'Mot de passe incorrect (ou compte désactivé).',
+                    'no_active_account',
+                ) from exc
+            raise
+
         user = self.user
         data['role'] = effective_kokozito_role(user)
         data['username'] = user.username
