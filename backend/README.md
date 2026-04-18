@@ -58,8 +58,9 @@ Les Web Services **gratuits** n’ont pas de **Shell** sur Render. Pour créer u
    - Exporter **`DATABASE_URL`** (valeur copiée). Si la connexion échoue, essayez **`DATABASE_SSL_REQUIRE=1`** (variable d’environnement).
    - Exporter **`KOKOZITO_SUPERUSER_PASSWORD`** (mot de passe fort, temporaire le temps de la commande).
    - Optionnel : `KOKOZITO_SUPERUSER_USERNAME` (défaut `admin`). **`KOKOZITO_SUPERUSER_EMAIL`** : obligatoire à la **création** (connexion admin sur le site avec e-mail + mot de passe). Avec **`KOKOZITO_SUPERUSER_UPDATE=1`**, si vous renseignez aussi l’e-mail, il est enregistré sur le compte existant.
-3. Lancer : `python manage.py bootstrap_superuser` (la commande applique d’abord **`migrate --noinput`** sur la base ciblée par `DATABASE_URL`, sauf si `KOKOZITO_SUPERUSER_SKIP_MIGRATE=1`).
-4. Retirer le mot de passe du terminal / ne pas le committer.
+3. Pour **voir quels comptes existent** sur cette base (sans mot de passe) : `python manage.py list_auth_users`.
+4. Lancer : `python manage.py bootstrap_superuser` (la commande applique d’abord **`migrate --noinput`** sur la base ciblée par `DATABASE_URL`, sauf si `KOKOZITO_SUPERUSER_SKIP_MIGRATE=1`).
+5. Retirer le mot de passe du terminal / ne pas le committer.
 
 Si le compte existe déjà : même commande avec **`KOKOZITO_SUPERUSER_UPDATE=1`** pour définir un nouveau mot de passe.
 
