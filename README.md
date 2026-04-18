@@ -155,6 +155,47 @@ Testez inscription, catalogue, panier. En cas d’erreur : F12 → **Console** /
 
 Après avoir fixé `environment.prod.ts`, `git add` / `commit` / `push` (l’URL sera visible sur GitHub ; acceptable si le dépôt est privé).
 
+### Compte administrateur (superuser) en production
+
+L’**espace administrateur** du front et l’admin Django (`/admin/`) utilisent un **superutilisateur Django** (identifiant + mot de passe).
+
+**Render gratuit : pas de Shell** sur le Web Service, donc pas de `createsuperuser` interactif dans le tableau de bord. Utilisez la commande **`bootstrap_superuser`** depuis **votre machine**, connectée à la **base Postgres Render** :
+
+1. **Render** → votre instance **PostgreSQL** → bouton **Connect** → copiez l’URL **External Database URL** en entier. Elle doit contenir un hôte du type **`…postgres.render.com`** (avec région). Si l’hôte ressemble seulement à `dpg-xxxxx-a` sans domaine, la copie est **incomplète** et la connexion depuis votre PC échouera (`could not translate host name`).
+2. **En local** : `cd backend`, activez le venv, `pip install -r requirements.txt` si besoin. **Windows** : si vous voyez une erreur du type *no pq wrapper* / *psycopg2*, c’est en général du **Python 32 bits** — installez **Python 64 bits**, recréez le `.venv`, puis installez le pilote binaire : `pip uninstall -y psycopg psycopg-binary` puis `pip install -r requirements-bootstrap.txt` (fichier dans `backend/`). Alternative : lancer la commande depuis **WSL**.
+3. Définissez les variables d’environnement (exemples ci-dessous), puis lancez la commande.
+
+**Git Bash** (Windows) :
+
+```bash
+export DATABASE_URL='postgresql://...'   # URL copiée depuis Render
+export KOKOZITO_SUPERUSER_PASSWORD='votre_mot_de_passe_fort'
+export KOKOZITO_SUPERUSER_EMAIL='vous@exemple.com'
+# optionnel : export KOKOZITO_SUPERUSER_USERNAME=admin
+# si erreur SSL à la connexion : export DATABASE_SSL_REQUIRE=1
+python manage.py bootstrap_superuser
+```
+
+*(Cette commande exécute d’abord `migrate --noinput` sur la base pointée par `DATABASE_URL` pour créer les tables si besoin.)*
+
+**PowerShell** (Windows) :
+
+```powershell
+$env:DATABASE_URL = "postgresql://..."
+$env:KOKOZITO_SUPERUSER_EMAIL = "vous@exemple.com"
+$env:KOKOZITO_SUPERUSER_PASSWORD = "votre_mot_de_passe_fort"
+python manage.py bootstrap_superuser
+Remove-Item Env:KOKOZITO_SUPERUSER_PASSWORD
+```
+
+4. Ne **commitez** jamais `DATABASE_URL` ni le mot de passe. Retirez les variables du terminal une fois la commande réussie.
+
+**Si l’utilisateur existe déjà** (ex. `admin`) : exportez **`KOKOZITO_SUPERUSER_UPDATE=1`** (et **`KOKOZITO_SUPERUSER_EMAIL`** si vous voulez enregistrer l’e-mail sur le compte), puis relancez `python manage.py bootstrap_superuser` pour **mettre à jour mot de passe** (et e-mail si fourni).
+
+**Instance Render payante** : vous pouvez à la place ouvrir **Shell** sur le Web Service et exécuter `python manage.py createsuperuser`.
+
+Détails et contexte : [backend/README.md](backend/README.md) (section *Superuser sans Shell Render*).
+
 ## Documentation
 
 - [frontend/README.md](frontend/README.md)

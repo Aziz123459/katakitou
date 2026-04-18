@@ -1,0 +1,14 @@
+# Connexion Postgres depuis votre PC (ex. manage.py bootstrap_superuser).
+# Ne pas utiliser psycopg[binary] seul : pip backtrack sur toutes les versions si aucun
+# wheel n’existe (ex. Python Windows 32 bits → erreur ResolutionImpossible).
+#
+# Prérequis : Python 64 bits (Windows win_amd64, macOS, Linux). Pas de wheel pour win32.
+#
+#   pip install -r requirements.txt
+#   pip uninstall -y psycopg psycopg-binary
+#   pip install -r requirements-bootstrap.txt
+#
+# Versions alignées (à ajuster si vous changez psycopg dans requirements.txt).
+
+psycopg==3.2.13
+psycopg-binary==3.2.13

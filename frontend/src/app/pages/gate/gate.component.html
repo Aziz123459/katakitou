@@ -11,14 +11,14 @@
     <div class="gate__admin" aria-labelledby="gate-admin-title">
       <h2 id="gate-admin-title" class="gate__admin-title">Espace administrateur</h2>
       <div class="gate__fields">
-        <label class="gate__label" for="gate-user">E-mail</label>
+        <label class="gate__label" for="gate-user">E-mail ou nom d’utilisateur</label>
         <input
           id="gate-user"
-          type="email"
+          type="text"
           class="gate__input"
           name="adminEmail"
           [(ngModel)]="adminEmail"
-          autocomplete="email"
+          autocomplete="username"
         />
         <label class="gate__label" for="gate-pass">Mot de passe</label>
         <input

@@ -49,6 +49,22 @@ python manage.py runserver
 - Inscription : `POST /api/register/` — corps JSON : `name`, `phone`, `localization` (pas d’e-mail ni mot de passe : compte technique avec mot de passe inutilisable). Réponse : `id`, `name`, `phone`, `role` (`client`).
 - Rôles : chaque utilisateur a un profil avec `role` = `client` ou `admin`. Les **superutilisateurs** Django (`createsuperuser`) sont **toujours** considérés comme administrateurs (connexion Angular + `GET /api/admin/dashboard/`). Pour les autres comptes : **Admin Django** → utilisateur → profil → champ **role** → _Administrateur_. Vues protégées : `permission_classes = [IsAuthenticated, IsAdminRole]` (`accounts.permissions`).
 
+### Superuser sans Shell Render (offre gratuite)
+
+Les Web Services **gratuits** n’ont pas de **Shell** sur Render. Pour créer un admin dans **la base de prod** depuis votre machine :
+
+1. Sur Render → **PostgreSQL** → **Connect** → copier l’**External Database URL** complète (hôte `*.postgres.render.com`). Une URL tronquée ne fonctionne pas depuis votre machine.
+2. En local, dans `backend/` (venv activé, **`pip install -r requirements.txt`**). Pour parler à Postgres depuis Windows avec des wheels précompilés : **`pip uninstall -y psycopg psycopg-binary`** puis **`pip install -r requirements-bootstrap.txt`** (Python **64 bits** obligatoire ; en 32 bits il n’existe pas de wheel — utilisez Python x64 ou WSL) :
+   - Exporter **`DATABASE_URL`** (valeur copiée). Si la connexion échoue, essayez **`DATABASE_SSL_REQUIRE=1`** (variable d’environnement).
+   - Exporter **`KOKOZITO_SUPERUSER_PASSWORD`** (mot de passe fort, temporaire le temps de la commande).
+   - Optionnel : `KOKOZITO_SUPERUSER_USERNAME` (défaut `admin`). **`KOKOZITO_SUPERUSER_EMAIL`** : obligatoire à la **création** (connexion admin sur le site avec e-mail + mot de passe). Avec **`KOKOZITO_SUPERUSER_UPDATE=1`**, si vous renseignez aussi l’e-mail, il est enregistré sur le compte existant.
+3. Lancer : `python manage.py bootstrap_superuser` (la commande applique d’abord **`migrate --noinput`** sur la base ciblée par `DATABASE_URL`, sauf si `KOKOZITO_SUPERUSER_SKIP_MIGRATE=1`).
+4. Retirer le mot de passe du terminal / ne pas le committer.
+
+Si le compte existe déjà : même commande avec **`KOKOZITO_SUPERUSER_UPDATE=1`** pour définir un nouveau mot de passe.
+
+Sur un service **payant**, vous pouvez aussi utiliser `python manage.py createsuperuser` dans le **Shell** Render.
+
 ## CORS
 
 Les origines `http://localhost:4200` et `http://127.0.0.1:4200` sont autorisées pour un front Angular en local. Pour la production, complétez `CORS_ALLOWED_ORIGINS` dans `config/settings.py` (ou via variables d’environnement si vous factorisez la config).

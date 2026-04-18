@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -45,16 +45,18 @@ export class GatePageComponent implements OnInit {
 
   loginAdmin(): void {
     this.adminError.set(null);
-    if (!this.adminEmail.trim() || !this.adminPassword) {
-      this.adminError.set('Renseignez l’e-mail et le mot de passe.');
+    const ident = this.adminEmail.trim();
+    if (!ident || !this.adminPassword) {
+      this.adminError.set('Renseignez l’e-mail (ou le nom d’utilisateur) et le mot de passe.');
       return;
     }
+    const body =
+      ident.includes('@')
+        ? { email: ident, password: this.adminPassword }
+        : { username: ident, password: this.adminPassword };
     this.adminLoading.set(true);
     this.http
-      .post<LoginResponse>(`${environment.apiBaseUrl}/api/auth/login/`, {
-        email: this.adminEmail.trim(),
-        password: this.adminPassword,
-      })
+      .post<LoginResponse>(`${environment.apiBaseUrl}/api/auth/login/`, body)
       .subscribe({
         next: (res) => {
           this.adminLoading.set(false);
@@ -68,9 +70,17 @@ export class GatePageComponent implements OnInit {
           localStorage.setItem('kokozito_admin_user_id', String(res.user_id));
           void this.router.navigate(['/admin']);
         },
-        error: () => {
+        error: (err: HttpErrorResponse) => {
           this.adminLoading.set(false);
-          this.adminError.set('Identifiants incorrects ou serveur indisponible.');
+          if (err.status === 401) {
+            this.adminError.set('E-mail / nom d’utilisateur ou mot de passe incorrect.');
+          } else if (err.status === 0) {
+            this.adminError.set(
+              'Impossible de joindre l’API (réseau, CORS ou mauvaise URL). Vérifiez le déploiement du front et apiBaseUrl.',
+            );
+          } else {
+            this.adminError.set('Identifiants incorrects ou serveur indisponible.');
+          }
         },
       });
   }
