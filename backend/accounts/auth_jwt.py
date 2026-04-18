@@ -59,11 +59,14 @@ class KokozitoTokenSerializer(TokenObtainPairSerializer):
             data = super().validate(attrs)
         except AuthenticationFailed as exc:
             if email:
-                raise AuthenticationFailed(
-                    'Mot de passe incorrect (ou compte désactivé).',
-                    'no_active_account',
-                ) from exc
-            raise
+                msg = 'Mot de passe incorrect (ou compte désactivé).'
+            else:
+                msg = (
+                    'Identifiant ou mot de passe incorrect (ou compte désactivé). '
+                    'Vérifiez le nom d’utilisateur ; pour la prod Render, réinitialisez avec '
+                    'bootstrap_superuser + DATABASE_URL + KOKOZITO_SUPERUSER_UPDATE=1.'
+                )
+            raise AuthenticationFailed(msg, 'no_active_account') from exc
 
         user = self.user
         data['role'] = effective_kokozito_role(user)
